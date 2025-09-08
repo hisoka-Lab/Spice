@@ -1,0 +1,55 @@
+{% load static %}
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <title>City Pixel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="{% static 'game/game.css' %}" rel="stylesheet">
+  <!-- Load Phaser from CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div>City Pixel</div>
+    <nav>
+      {% if request.user.is_authenticated %}
+        <span>สวัสดี, {{ request.user.username }}</span>
+        <a href="{% url 'admin:logout' %}?next=/">ออกจากระบบ</a>
+      {% else %}
+        <a href="{% url 'admin:login' %}?next=/">เข้าสู่ระบบ</a>
+      {% endif %}
+    </nav>
+  </header>
+
+  <div id="game-root"></div>
+
+  <!-- Dialogue panel -->
+  <div id="dialogue" class="panel hidden">
+    <div class="panel-header">NPC</div>
+    <div class="panel-body" id="dialogue-text"></div>
+    <button id="dialogue-close">ปิด (Esc)</button>
+  </div>
+
+  <!-- Board panel for announcements -->
+  <div id="board" class="panel hidden">
+    <div class="panel-header">บอร์ดประกาศ (กด B เพื่อปิด)</div>
+    <div class="panel-body">
+      <form id="post-form">
+        <input id="post-title" placeholder="หัวข้อประกาศ" required />
+        <textarea id="post-body" placeholder="เนื้อหา" rows="3" required></textarea>
+        <button type="submit">โพสต์</button>
+        <small id="post-tip"></small>
+      </form>
+      <hr />
+      <div id="post-list"></div>
+    </div>
+  </div>
+
+  <!-- Expose authentication status to JS -->
+  <script>
+    window.USER_IS_AUTH = {{ request.user.is_authenticated|yesno:"true,false" }};
+  </script>
+  <script src="{% static 'game/game.js' %}"></script>
+</body>
+</html>
