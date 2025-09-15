@@ -1,0 +1,1182 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>🗺️ Pixel World - RPG Adventure</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Press Start 2P', cursive;
+      background: #2d5016;
+      color: #fff;
+      overflow: hidden;
+      image-rendering: pixelated;
+      image-rendering: -moz-crisp-edges;
+      image-rendering: crisp-edges;
+    }
+    
+    .game-container {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .game-world {
+      width: 2000px;
+      height: 1500px;
+      position: absolute;
+      transition: transform 0.1s ease;
+      background: 
+        /* City ground texture */
+        repeating-linear-gradient(
+          90deg,
+          #6b7280 0px,
+          #6b7280 4px,
+          #9ca3af 4px,
+          #9ca3af 8px
+        ),
+        repeating-linear-gradient(
+          0deg,
+          #4b5563 0px,
+          #4b5563 4px,
+          #6b7280 4px,
+          #6b7280 8px
+        );
+      background-size: 32px 32px, 32px 32px;
+      background-color: #6b7280;
+    }
+    
+    .camera-viewport {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .game-world {
+      position: relative;
+      width: 2000px;
+      height: 1500px;
+      transition: transform 0.1s ease-out;
+    }
+    
+    /* City Elements */
+    .city-element {
+      position: absolute;
+    }
+    
+    .road {
+      background: 
+        /* Road markings */
+        repeating-linear-gradient(
+          90deg,
+          #374151 0px,
+          #374151 20px,
+          #fbbf24 20px,
+          #fbbf24 24px,
+          #374151 24px,
+          #374151 44px
+        );
+      background-color: #374151;
+      z-index: 1;
+    }
+    
+    .sidewalk {
+      background: 
+        repeating-linear-gradient(
+          45deg,
+          #d1d5db 0px,
+          #d1d5db 8px,
+          #e5e7eb 8px,
+          #e5e7eb 16px
+        );
+      background-color: #d1d5db;
+      z-index: 2;
+    }
+    
+    .park {
+      background: 
+        radial-gradient(circle at 30% 30%, #22c55e 0%, transparent 40%),
+        radial-gradient(circle at 70% 70%, #16a34a 0%, transparent 40%),
+        linear-gradient(45deg, #22c55e 25%, transparent 25%),
+        linear-gradient(-45deg, #16a34a 25%, transparent 25%);
+      background-size: 32px 32px, 32px 32px, 16px 16px, 16px 16px;
+      background-color: #22c55e;
+      z-index: 3;
+    }
+    
+    .fountain {
+      width: 80px;
+      height: 80px;
+      background: 
+        radial-gradient(circle at 50% 50%, #3b82f6 0%, #3b82f6 30%, #1d4ed8 30%, #1d4ed8 100%);
+      border-radius: 50%;
+      z-index: 4;
+      animation: fountainFlow 2s ease-in-out infinite;
+    }
+    
+    @keyframes fountainFlow {
+      0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.5); }
+      50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.8); }
+    }
+    
+    .street-lamp {
+      width: 16px;
+      height: 64px;
+      background: 
+        /* Lamp head */
+        radial-gradient(circle at 50% 10%, #fbbf24 0%, #fbbf24 80%, transparent 80%),
+        /* Lamp post */
+        linear-gradient(180deg, transparent 20%, #374151 20%, #374151 100%);
+      background-size: 16px 20px, 8px 64px;
+      background-position: 0 0, 4px 0;
+      background-repeat: no-repeat;
+      z-index: 6;
+    }
+    
+    /* Buildings */
+    .building {
+      position: absolute;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      z-index: 10;
+      border: 3px solid #374151;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 12px;
+      text-align: center;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+    
+    .building:hover {
+      transform: scale(1.05);
+      filter: brightness(1.2);
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+    }
+    
+    .tavern {
+      width: 150px;
+      height: 120px;
+      background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+    }
+    
+    .dream-shop {
+      width: 130px;
+      height: 100px;
+      background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+    }
+    
+    .guild-hall {
+      width: 140px;
+      height: 110px;
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    }
+    
+    .general-store {
+      width: 120px;
+      height: 90px;
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    }
+    
+    .blacksmith {
+      width: 110px;
+      height: 95px;
+      background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
+    }
+    
+    .temple {
+      width: 160px;
+      height: 130px;
+      background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+    }
+    
+    .residential {
+      width: 100px;
+      height: 80px;
+      background: linear-gradient(135deg, #84cc16 0%, #65a30d 100%);
+    }
+    
+    /* Character */
+    .character {
+      width: 32px;
+      height: 32px;
+      position: absolute;
+      z-index: 50;
+      image-rendering: pixelated;
+      background-image: url('{% static "game/assets/player-sprite.svg" %}');
+      background-size: contain;
+      background-repeat: no-repeat;
+      transition: none;
+      transform-origin: center center;
+      filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
+    }
+    
+    .character.walking {
+      animation: walk 0.4s steps(4) infinite;
+    }
+    
+    .character.walking.up {
+      animation: walkUp 0.4s steps(4) infinite;
+    }
+    
+    .character.walking.down {
+      animation: walkDown 0.4s steps(4) infinite;
+    }
+    
+    .character.walking.left {
+      animation: walkLeft 0.4s steps(4) infinite;
+      transform: scaleX(-1);
+    }
+    
+    .character.walking.right {
+      animation: walkRight 0.4s steps(4) infinite;
+    }
+    
+    @keyframes walk {
+      0% { transform: translateY(0px); }
+      25% { transform: translateY(-1px); }
+      50% { transform: translateY(0px); }
+      75% { transform: translateY(1px); }
+      100% { transform: translateY(0px); }
+    }
+    
+    @keyframes walkUp {
+      0% { transform: translateY(0px) rotate(-2deg); }
+      25% { transform: translateY(-2px) rotate(0deg); }
+      50% { transform: translateY(0px) rotate(2deg); }
+      75% { transform: translateY(-1px) rotate(0deg); }
+      100% { transform: translateY(0px) rotate(-2deg); }
+    }
+    
+    @keyframes walkDown {
+      0% { transform: translateY(0px) rotate(2deg); }
+      25% { transform: translateY(1px) rotate(0deg); }
+      50% { transform: translateY(0px) rotate(-2deg); }
+      75% { transform: translateY(1px) rotate(0deg); }
+      100% { transform: translateY(0px) rotate(2deg); }
+    }
+    
+    @keyframes walkLeft {
+      0% { transform: scaleX(-1) translateY(0px); }
+      25% { transform: scaleX(-1) translateY(-1px); }
+      50% { transform: scaleX(-1) translateY(0px); }
+      75% { transform: scaleX(-1) translateY(1px); }
+      100% { transform: scaleX(-1) translateY(0px); }
+    }
+    
+    @keyframes walkRight {
+      0% { transform: translateY(0px); }
+      25% { transform: translateY(-1px); }
+      50% { transform: translateY(0px); }
+      75% { transform: translateY(1px); }
+      100% { transform: translateY(0px); }
+    }
+    
+    /* NPCs */
+    .npc {
+      width: 32px;
+      height: 32px;
+      position: absolute;
+      z-index: 45;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      image-rendering: pixelated;
+      background-size: contain;
+      background-repeat: no-repeat;
+      animation: npcIdle 3s ease-in-out infinite;
+    }
+    
+    .npc:hover {
+      transform: scale(1.1);
+      filter: brightness(1.3);
+    }
+    
+    .npc-wizard {
+      background-image: url('{% static "game/assets/npc-wizard.svg" %}');
+    }
+    
+    .npc-merchant {
+      background-image: url('{% static "game/assets/npc-merchant.svg" %}');
+    }
+    
+    .npc-cat {
+      background-image: url('{% static "game/assets/npc-cat.svg" %}');
+    }
+    
+    @keyframes npcIdle {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-2px); }
+    }
+    
+    /* Quest Indicator */
+    .quest-indicator {
+      position: absolute;
+      top: -15px;
+      right: -5px;
+      background: #f1c40f;
+      color: #000;
+      border-radius: 50%;
+      width: 16px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: bold;
+      animation: pulse 1s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
+    
+    /* UI Elements */
+    .game-ui {
+      position: fixed;
+      top: 70px;
+      left: 20px;
+      z-index: 200;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 15px;
+      border-radius: 10px;
+      border: 2px solid #333;
+    }
+    
+    .ui-item {
+      margin-bottom: 10px;
+      font-size: 10px;
+      color: #fff;
+    }
+    
+    .controls {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      z-index: 200;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 15px;
+      border-radius: 10px;
+      border: 2px solid #333;
+      font-size: 8px;
+    }
+    
+    .minimap {
+      position: fixed;
+      top: 70px;
+      right: 20px;
+      width: 200px;
+      height: 150px;
+      background: rgba(0, 0, 0, 0.8);
+      border: 2px solid #333;
+      border-radius: 10px;
+      z-index: 200;
+    }
+    
+    /* Interaction Prompt */
+    .interaction-prompt {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.9);
+      color: #fff;
+      padding: 20px 30px;
+      border-radius: 15px;
+      border: 3px solid #f1c40f;
+      font-size: 14px;
+      text-align: center;
+      z-index: 250;
+      animation: promptPulse 1s ease-in-out infinite;
+      display: none;
+    }
+    
+    @keyframes promptPulse {
+      0%, 100% { 
+        transform: translate(-50%, -50%) scale(1); 
+        border-color: #f1c40f;
+      }
+      50% { 
+        transform: translate(-50%, -50%) scale(1.05); 
+        border-color: #f39c12;
+      }
+    }
+    
+    /* Navigation Bar */
+    .nav-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: #2c3e50;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 1000;
+      font-size: 12px;
+    }
+    
+    .nav-brand {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    
+    .nav-links {
+      display: flex;
+      gap: 20px;
+    }
+    
+    .nav-link {
+      color: #bdc3c7;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    
+    .nav-link:hover {
+      color: #f39c12;
+    }
+    
+    .nav-link.active {
+      color: #f39c12;
+      font-weight: bold;
+    }
+    
+    .nav-stats {
+      color: #95a5a6;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .game-map {
+        width: 100vw;
+        height: 100vh;
+        transform: none;
+        top: 0;
+        left: 0;
+      }
+      
+      .game-ui, .controls, .minimap {
+        font-size: 8px;
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation Bar -->
+  <nav class="nav-bar">
+    <a href="{% url 'game:map' %}" class="nav-brand">🗺️ Bangkok Nights</a>
+    <div class="nav-links">
+      <a href="{% url 'game:map' %}" class="nav-link active">🗺️ แมพหลัก</a>
+      <a href="{% url 'game:bar' %}" class="nav-link">🍺 QuietPour Bar</a>
+      <a href="{% url 'game:dream_shop' %}" class="nav-link">💭 ร้านฝัน</a>
+      <a href="{% url 'game:quest_board' %}" class="nav-link">📋 กระดานภารกิจ</a>
+      <span class="nav-stats">💰 ${{ profile.coins }} | ⭐ Lv.{{ profile.level }}</span>
+      <a href="{% url 'logout' %}" class="nav-link" style="color: #e74c3c;">ออกจากระบบ</a>
+    </div>
+  </nav>
+
+  <div class="game-container">
+    <!-- Game UI -->
+    <div class="game-ui">
+      <div class="ui-item">👤 {{ user.username }}</div>
+      <div class="ui-item">💰 ${{ profile.coins }}</div>
+      <div class="ui-item">⭐ Lv.{{ profile.level }}</div>
+      <div class="ui-item">{{ profile.get_rank_display_with_icon }}</div>
+      <div class="ui-item">EXP: {{ profile.experience }}/{{ profile.level|add:"00" }}</div>
+    </div>
+    
+    <!-- Interaction Prompt -->
+    <div id="interactionPrompt" class="interaction-prompt">
+      <div id="promptText">กด SPACE เพื่อเข้าอาคาร</div>
+    </div>
+    
+    <!-- Minimap -->
+    <div class="minimap">
+      <div style="padding: 10px; font-size: 8px; text-align: center;">
+        <div>🗺️ WORLD MAP</div>
+        <div style="margin-top: 10px;">
+          <div>🍺 Tavern</div>
+          <div>💭 Dream Shop</div>
+          <div>📋 Guild</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Controls -->
+    <div class="controls">
+      <div>WASD/Arrows: Move</div>
+      <div>SPACE: Interact</div>
+      <div>ESC: Menu</div>
+    </div>
+
+    <!-- Camera Viewport -->
+    <div class="camera-viewport" id="viewport">
+      <!-- Game World -->
+      <div class="game-world" id="gameWorld">
+        <!-- City Infrastructure -->
+        <!-- Main Roads -->
+        <div class="city-element road" style="left: 0px; top: 600px; width: 2000px; height: 80px;"></div>
+        <div class="city-element road" style="left: 0px; top: 1000px; width: 2000px; height: 80px;"></div>
+        <div class="city-element road" style="left: 800px; top: 0px; width: 80px; height: 1500px;"></div>
+        <div class="city-element road" style="left: 1200px; top: 0px; width: 80px; height: 1500px;"></div>
+        
+        <!-- Sidewalks -->
+        <div class="city-element sidewalk" style="left: 0px; top: 580px; width: 2000px; height: 20px;"></div>
+        <div class="city-element sidewalk" style="left: 0px; top: 680px; width: 2000px; height: 20px;"></div>
+        <div class="city-element sidewalk" style="left: 0px; top: 980px; width: 2000px; height: 20px;"></div>
+        <div class="city-element sidewalk" style="left: 0px; top: 1080px; width: 2000px; height: 20px;"></div>
+        
+        <!-- Central Park -->
+        <div class="city-element park" style="left: 900px; top: 700px; width: 300px; height: 280px;"></div>
+        <div class="city-element fountain" style="left: 1010px; top: 820px;"></div>
+        
+        <!-- Street Lamps -->
+        <div class="city-element street-lamp" style="left: 750px; top: 520px;"></div>
+        <div class="city-element street-lamp" style="left: 900px; top: 520px;"></div>
+        <div class="city-element street-lamp" style="left: 1050px; top: 520px;"></div>
+        <div class="city-element street-lamp" style="left: 1320px; top: 520px;"></div>
+        <div class="city-element street-lamp" style="left: 750px; top: 1100px;"></div>
+        <div class="city-element street-lamp" style="left: 1320px; top: 1100px;"></div>
+        
+        <!-- Main Buildings -->
+        <div class="building tavern" onclick="enterBuildingLegacy('bar')" title="QuietPour Bar - บาร์สำหรับคนที่ต้องการความสงบ" 
+             style="left: 600px; top: 400px;">
+          🍺<br>QuietPour<br>BAR
+        </div>
+        
+        <div class="building dream-shop" onclick="enterBuildingLegacy('dreams')" title="Mystic Dreams Shop" 
+             style="left: 1300px; top: 420px;">
+          💭<br>DREAMS
+        </div>
+        
+        <div class="building guild-hall" onclick="enterBuildingLegacy('quests')" title="Adventurer's Guild" 
+             style="left: 450px; top: 380px;">
+          ⚔️<br>GUILD
+        </div>
+        
+        <div class="building general-store" onclick="enterBuildingLegacy('shop')" title="General Store" 
+             style="left: 1400px; top: 200px;">
+          🏪<br>STORE
+        </div>
+        
+        <div class="building blacksmith" onclick="enterBuildingLegacy('blacksmith')" title="Blacksmith" 
+             style="left: 300px; top: 200px;">
+          🔨<br>SMITH
+        </div>
+        
+        <div class="building temple" onclick="enterBuildingLegacy('temple')" title="Temple of Light" 
+             style="left: 1000px; top: 150px;">
+          ⛪<br>TEMPLE
+        </div>
+        
+        <!-- Residential Buildings -->
+        <div class="building residential" style="left: 200px; top: 450px;">🏠<br>HOME</div>
+        <div class="building residential" style="left: 350px; top: 500px;">🏠<br>HOME</div>
+        <div class="building residential" style="left: 1500px; top: 300px;">🏠<br>HOME</div>
+        <div class="building residential" style="left: 1600px; top: 450px;">🏠<br>HOME</div>
+        <div class="building residential" style="left: 200px; top: 1200px;">🏠<br>HOME</div>
+        <div class="building residential" style="left: 350px; top: 1150px;">🏠<br>HOME</div>
+        <div class="building residential" style="left: 1500px; top: 1200px;">🏠<br>HOME</div>
+        <div class="building residential" style="left: 1600px; top: 1150px;">🏠<br>HOME</div>
+        
+        <!-- Player Character -->
+        <div class="character" id="playerCharacter" 
+             style="left: {{ profile.character_x }}px; top: {{ profile.character_y }}px;">
+        </div>
+        
+        <!-- Player name tag -->
+        <div id="playerNameTag" style="position: absolute; z-index: 51; background: rgba(0,0,0,0.8); color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; pointer-events: none; left: {{ profile.character_x }}px; top: {{ profile.character_y|add:"-20" }}px;">
+          {{ user.username }}
+        </div>
+        
+        <!-- NPCs with Quests -->
+        <div class="npc npc-wizard" onclick="talkToNPC('guild_master')" title="Guild Master"
+             style="left: 520px; top: 350px;">
+          <div class="quest-indicator">!</div>
+        </div>
+        
+        <div class="npc npc-merchant" onclick="talkToNPC('traveling_merchant')" title="Traveling Merchant"
+             style="left: 1050px; top: 850px;">
+          <div class="quest-indicator">?</div>
+        </div>
+        
+        <div class="npc npc-cat" onclick="talkToNPC('lost_cat')" title="Lost Cat"
+             style="left: 750px; top: 320px;">
+          <div class="quest-indicator">!</div>
+        </div>
+        
+        <div class="npc npc-merchant" onclick="talkToNPC('town_guard')" title="Town Guard"
+             style="left: 850px; top: 550px;">
+          <div class="quest-indicator">!</div>
+        </div>
+        
+        <div class="npc npc-wizard" onclick="talkToNPC('old_sage')" title="Old Sage"
+             style="left: 1070px; top: 120px;">
+          <div class="quest-indicator">!</div>
+        </div>
+        
+        <div class="npc npc-merchant" onclick="talkToNPC('blacksmith_npc')" title="Master Blacksmith"
+             style="left: 350px; top: 170px;">
+          <div class="quest-indicator">!</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NPC Dialog Modal -->
+  <div id="npcModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 300;">
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #2c3e50; padding: 30px; border-radius: 15px; border: 3px solid #34495e; max-width: 500px; width: 90%;">
+      <h3 id="npcName" style="color: #f1c40f; margin-bottom: 15px; font-size: 12px;"></h3>
+      <p id="npcDialogue" style="color: #ecf0f1; margin-bottom: 20px; font-size: 10px; line-height: 1.5;"></p>
+      <div style="text-align: right;">
+        <button onclick="closeNPCModal()" style="background: #e74c3c; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-family: inherit; font-size: 8px; cursor: pointer; margin-right: 10px;">Close</button>
+        <button id="acceptQuestBtn" onclick="acceptQuest()" style="background: #27ae60; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-family: inherit; font-size: 8px; cursor: pointer; display: none;">Accept Quest</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Game Variables
+    let player = {
+      x: {{ profile.character_x }},
+      y: {{ profile.character_y }},
+      speed: 4, // เพิ่มความเร็ว
+      isWalking: false,
+      direction: 'down'
+    };
+    
+    let keys = {};
+    let currentQuest = null;
+    let gameWorld = null;
+    let character = null;
+    let viewport = null;
+    let interactionPrompt = null;
+    let nearbyBuilding = null;
+    
+    // World bounds
+    const WORLD_WIDTH = 2000;
+    const WORLD_HEIGHT = 1500;
+    const VIEWPORT_WIDTH = window.innerWidth;
+    const VIEWPORT_HEIGHT = window.innerHeight;
+    
+    // Buildings data for interaction
+    const buildings = [
+      {
+        id: 'tavern',
+        name: 'QuietPour Bar',
+        x: 600, y: 400, width: 150, height: 120,
+        url: '{% url "game:bar" %}',
+        icon: '🍺'
+      },
+      {
+        id: 'dream-shop',
+        name: 'ร้านฝัน',
+        x: 1300, y: 420, width: 130, height: 100,
+        url: '{% url "game:dream_shop" %}',
+        icon: '💭'
+      },
+      {
+        id: 'guild-hall',
+        name: 'กระดานภารกิจ',
+        x: 450, y: 380, width: 140, height: 110,
+        url: '{% url "game:quest_board" %}',
+        icon: '📋'
+      },
+      {
+        id: 'general-store',
+        name: 'ร้านค้าทั่วไป',
+        x: 1400, y: 200, width: 120, height: 90,
+        url: null,
+        icon: '🏪'
+      },
+      {
+        id: 'blacksmith',
+        name: 'โรงตีเหล็ก',
+        x: 300, y: 200, width: 110, height: 95,
+        url: null,
+        icon: '🔨'
+      },
+      {
+        id: 'temple',
+        name: 'วิหาร',
+        x: 1000, y: 150, width: 160, height: 130,
+        url: null,
+        icon: '⛪'
+      }
+    ];
+    
+    // Initialize DOM elements
+    function initializeElements() {
+      gameWorld = document.getElementById('gameWorld');
+      character = document.getElementById('playerCharacter');
+      viewport = document.getElementById('viewport');
+      interactionPrompt = document.getElementById('interactionPrompt');
+      
+      if (!gameWorld) {
+        console.error('gameWorld element not found!');
+        return false;
+      }
+      if (!character) {
+        console.error('playerCharacter element not found!');
+        return false;
+      }
+      if (!viewport) {
+        console.error('viewport element not found!');
+        return false;
+      }
+      if (!interactionPrompt) {
+        console.error('interactionPrompt element not found!');
+        return false;
+      }
+      
+      console.log('Elements initialized successfully');
+      return true;
+    }
+    
+    // Collision detection - ปรับให้ตัวละครเดินได้ง่ายขึ้น
+    const obstacles = [
+      // Buildings - ลดขนาด collision box
+      {x: 610, y: 410, width: 130, height: 100}, // Tavern
+      {x: 1310, y: 430, width: 110, height: 80}, // Dream Shop
+      {x: 460, y: 390, width: 120, height: 90}, // Guild Hall
+      {x: 1410, y: 210, width: 100, height: 70}, // General Store
+      {x: 310, y: 210, width: 90, height: 75}, // Blacksmith
+      {x: 1010, y: 160, width: 140, height: 110}, // Temple
+      // Residential - ลดขนาด
+      {x: 210, y: 460, width: 80, height: 60},
+      {x: 360, y: 510, width: 80, height: 60},
+      {x: 1510, y: 310, width: 80, height: 60},
+      {x: 1610, y: 460, width: 80, height: 60},
+      {x: 210, y: 1210, width: 80, height: 60},
+      {x: 360, y: 1160, width: 80, height: 60},
+      {x: 1510, y: 1210, width: 80, height: 60},
+      {x: 1610, y: 1160, width: 80, height: 60},
+      // Fountain - ลดขนาด
+      {x: 1020, y: 830, width: 60, height: 60}
+      // ลบ street lamps collision เพื่อให้เดินผ่านได้
+    ];
+    
+    function checkCollision(newX, newY) {
+      // ตรวจสอบขอบเขตแมพ
+      if (newX < 0 || newX > WORLD_WIDTH - 32 || newY < 0 || newY > WORLD_HEIGHT - 32) {
+        return true;
+      }
+      
+      const playerRect = {
+        x: newX + 4, // ลด collision box ของผู้เล่น
+        y: newY + 20, // ตรวจสอบเฉพาะส่วนล่าง
+        width: 24,
+        height: 12
+      };
+      
+      for (let obstacle of obstacles) {
+        if (playerRect.x < obstacle.x + obstacle.width &&
+            playerRect.x + playerRect.width > obstacle.x &&
+            playerRect.y < obstacle.y + obstacle.height &&
+            playerRect.y + playerRect.height > obstacle.y) {
+          return true;
+        }
+      }
+      return false;
+    }
+    
+    // Camera System
+    function updateCamera() {
+      if (!gameWorld || !viewport) return; // Safety check
+      
+      const cameraX = Math.max(0, Math.min(WORLD_WIDTH - VIEWPORT_WIDTH, player.x - VIEWPORT_WIDTH / 2));
+      const cameraY = Math.max(0, Math.min(WORLD_HEIGHT - VIEWPORT_HEIGHT, player.y - VIEWPORT_HEIGHT / 2));
+      
+      // Move the entire game world to follow the player
+      gameWorld.style.transform = `translate(-${cameraX}px, -${cameraY}px)`;
+      
+      // Debug camera position (remove this later)
+      if (Math.random() < 0.01) { // Only log occasionally to avoid spam
+        console.log('Camera position:', cameraX, cameraY, 'Player:', player.x, player.y);
+      }
+    }
+    
+    // Player Movement
+    function updatePlayerPosition() {
+      if (!character) return; // Safety check
+      
+      // Position character in the world
+      character.style.left = player.x + 'px';
+      character.style.top = player.y + 'px';
+      
+      // Update name tag position
+      const nameTag = document.getElementById('playerNameTag');
+      if (nameTag) {
+        nameTag.style.left = (player.x + 16 - nameTag.offsetWidth/2) + 'px';
+        nameTag.style.top = (player.y - 20) + 'px';
+      }
+      
+      // Update camera to follow player
+      updateCamera();
+      
+      // Save position to server (throttled)
+      if (!updatePlayerPosition.lastSave || Date.now() - updatePlayerPosition.lastSave > 2000) {
+        fetch('{% url "game:move_character" %}', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+          },
+          body: JSON.stringify({x: player.x, y: player.y})
+        }).catch(error => {
+          console.log('Position save failed:', error);
+        });
+        updatePlayerPosition.lastSave = Date.now();
+      }
+    }
+    
+    function movePlayer() {
+      let newX = player.x;
+      let newY = player.y;
+      let moved = false;
+      
+      if (keys['w'] || keys['ArrowUp']) {
+        newY = Math.max(0, player.y - player.speed);
+        player.direction = 'up';
+        moved = true;
+      }
+      if (keys['s'] || keys['ArrowDown']) {
+        newY = Math.min(WORLD_HEIGHT - 32, player.y + player.speed);
+        player.direction = 'down';
+        moved = true;
+      }
+      if (keys['a'] || keys['ArrowLeft']) {
+        newX = Math.max(0, player.x - player.speed);
+        player.direction = 'left';
+        moved = true;
+      }
+      if (keys['d'] || keys['ArrowRight']) {
+        newX = Math.min(WORLD_WIDTH - 32, player.x + player.speed);
+        player.direction = 'right';
+        moved = true;
+      }
+      
+      // Check collision before moving
+      if (moved && !checkCollision(newX, newY)) {
+        player.x = newX;
+        player.y = newY;
+        
+        if (!player.isWalking) {
+          character.classList.add('walking');
+          player.isWalking = true;
+        }
+        
+        // Update character direction classes
+        character.classList.remove('up', 'down', 'left', 'right');
+        character.classList.add(player.direction);
+        
+        updatePlayerPosition();
+        checkBuildingProximity();
+      } else if (!moved && player.isWalking) {
+        character.classList.remove('walking', 'up', 'down', 'left', 'right');
+        player.isWalking = false;
+      }
+    }
+    
+    // Check if player is near any building
+    function checkBuildingProximity() {
+      const interactionRange = 80;
+      let foundBuilding = null;
+      
+      for (let building of buildings) {
+        const distance = Math.sqrt(
+          Math.pow(player.x - (building.x + building.width/2), 2) + 
+          Math.pow(player.y - (building.y + building.height/2), 2)
+        );
+        
+        if (distance < interactionRange) {
+          foundBuilding = building;
+          break;
+        }
+      }
+      
+      if (foundBuilding && foundBuilding !== nearbyBuilding) {
+        nearbyBuilding = foundBuilding;
+        showInteractionPrompt(foundBuilding);
+      } else if (!foundBuilding && nearbyBuilding) {
+        nearbyBuilding = null;
+        hideInteractionPrompt();
+      }
+    }
+    
+    // Show interaction prompt
+    function showInteractionPrompt(building) {
+      const promptText = document.getElementById('promptText');
+      promptText.innerHTML = `${building.icon} กด <strong>SPACE</strong> เพื่อเข้า<br><strong>${building.name}</strong>`;
+      interactionPrompt.style.display = 'block';
+      
+      // Add sound effect (if available)
+      try {
+        const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT');
+        audio.volume = 0.1;
+        audio.play().catch(() => {});
+      } catch(e) {}
+    }
+    
+    // Hide interaction prompt
+    function hideInteractionPrompt() {
+      interactionPrompt.style.display = 'none';
+    }
+    
+    // Event Listeners
+    document.addEventListener('keydown', (e) => {
+      keys[e.key.toLowerCase()] = true;
+      keys[e.key] = true; // For arrow keys
+      
+      if (e.key === 'Escape') {
+        closeNPCModal();
+      }
+      if (e.key === ' ') {
+        e.preventDefault();
+        checkInteraction();
+      }
+      
+      // Debug keys
+      if (e.key === 'Enter' && e.ctrlKey) {
+        console.log('Player position:', player.x, player.y);
+        console.log('Nearby building:', nearbyBuilding);
+      }
+      
+      // Prevent default for arrow keys to avoid page scrolling
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+        e.preventDefault();
+      }
+    });
+    
+    document.addEventListener('keyup', (e) => {
+      keys[e.key.toLowerCase()] = false;
+      keys[e.key] = false;
+    });
+    
+    // Interaction system
+    function checkInteraction() {
+      // Check if near a building
+      if (nearbyBuilding) {
+        enterBuilding(nearbyBuilding);
+        return;
+      }
+      
+      // Check NPCs
+      const interactionRange = 60;
+      const npcs = document.querySelectorAll('.npc');
+      
+      for (let npc of npcs) {
+        const npcStyle = window.getComputedStyle(npc);
+        const npcX = parseInt(npcStyle.left);
+        const npcY = parseInt(npcStyle.top);
+        
+        const distance = Math.sqrt(
+          Math.pow(player.x - npcX, 2) + 
+          Math.pow(player.y - npcY, 2)
+        );
+        
+        if (distance < interactionRange) {
+          npc.click();
+          return;
+        }
+      }
+    }
+    
+    // Building Interactions
+    function enterBuilding(building) {
+      // Hide interaction prompt
+      hideInteractionPrompt();
+      
+      // Add entrance effect
+      character.style.filter = 'brightness(0.5)';
+      character.style.transform = 'scale(0.8)';
+      
+      setTimeout(() => {
+        if (building.url) {
+          window.location.href = building.url;
+        } else {
+          // Show message for buildings without pages
+          let message = '';
+          switch(building.id) {
+            case 'general-store':
+              message = 'ร้านค้าทั่วไป: "ยินดีต้อนรับ! เรามีอุปกรณ์และของใช้พื้นฐานขาย"';
+              break;
+            case 'blacksmith':
+              message = 'ช่างตีเหล็ก: "ต้องการอาวุธหรือเกราะมั้ย? ข้าสามารถสร้างอุปกรณ์ที่ดีที่สุดในเมืองได้!"';
+              break;
+            case 'temple':
+              message = 'พระ: "ขอให้แสงสว่างนำทางเจ้า นักเดินทาง จงแสวงหาปัญญาและความสงบที่นี่"';
+              break;
+            default:
+              message = 'อาคารนี้ปิดอยู่ในขณะนี้';
+          }
+          alert(message);
+          // Reset character appearance
+          character.style.filter = '';
+          character.style.transform = '';
+        }
+      }, 300);
+    }
+    
+    // Legacy function for onclick handlers
+    function enterBuildingLegacy(type) {
+      const buildingMap = {
+        'bar': buildings.find(b => b.id === 'tavern'),
+        'dreams': buildings.find(b => b.id === 'dream-shop'),
+        'quests': buildings.find(b => b.id === 'guild-hall'),
+        'shop': buildings.find(b => b.id === 'general-store'),
+        'blacksmith': buildings.find(b => b.id === 'blacksmith'),
+        'temple': buildings.find(b => b.id === 'temple')
+      };
+      
+      const building = buildingMap[type];
+      if (building) {
+        enterBuilding(building);
+      }
+    }
+    
+    // NPC Interactions
+    function talkToNPC(npcType) {
+      const modal = document.getElementById('npcModal');
+      const nameEl = document.getElementById('npcName');
+      const dialogueEl = document.getElementById('npcDialogue');
+      const acceptBtn = document.getElementById('acceptQuestBtn');
+      
+      const npcs = {
+        guild_master: {
+          name: '⚔️ Guild Master',
+          dialogue: 'Welcome to the Adventurer\'s Guild! I have several quests available. Are you ready to prove yourself?',
+          hasQuest: true,
+          questId: 1
+        },
+        traveling_merchant: {
+          name: '🎒 Traveling Merchant',
+          dialogue: 'Ah, a fellow traveler! I\'ve been to many lands and have stories to tell. Perhaps you could help me with something?',
+          hasQuest: true,
+          questId: 2
+        },
+        lost_cat: {
+          name: '🐱 Lost Cat',
+          dialogue: 'Meow... I\'m lost and can\'t find my way home. Could you help me find my owner?',
+          hasQuest: true,
+          questId: 3
+        },
+        town_guard: {
+          name: '🛡️ Town Guard',
+          dialogue: 'Citizen! We\'ve been having trouble with bandits on the roads. Could you help patrol the area?',
+          hasQuest: true,
+          questId: 4
+        },
+        old_sage: {
+          name: '🧙‍♂️ Old Sage',
+          dialogue: 'Young one, I sense great potential in you. There are ancient mysteries that need solving...',
+          hasQuest: true,
+          questId: 5
+        },
+        blacksmith_npc: {
+          name: '🔨 Master Blacksmith',
+          dialogue: 'My forge burns hot, but I need rare materials. Could you gather some special ores for me?',
+          hasQuest: true,
+          questId: 6
+        }
+      };
+      
+      const npc = npcs[npcType];
+      nameEl.textContent = npc.name;
+      dialogueEl.textContent = npc.dialogue;
+      
+      if (npc.hasQuest) {
+        acceptBtn.style.display = 'inline-block';
+        currentQuest = npc.questId;
+      } else {
+        acceptBtn.style.display = 'none';
+      }
+      
+      modal.style.display = 'block';
+    }
+    
+    function closeNPCModal() {
+      document.getElementById('npcModal').style.display = 'none';
+      currentQuest = null;
+    }
+    
+    function acceptQuest() {
+      if (currentQuest) {
+        window.location.href = '/quest/' + currentQuest + '/complete/';
+      }
+    }
+    
+    // Game Loop
+    function gameLoop() {
+      movePlayer();
+      requestAnimationFrame(gameLoop);
+    }
+    
+    // Initialize Game
+    function startGame() {
+      if (initializeElements()) {
+        console.log('Game initialized successfully');
+        console.log('Player starting position:', player.x, player.y);
+        
+        // Set initial player position
+        updatePlayerPosition();
+        
+        // Initial proximity check
+        checkBuildingProximity();
+        
+        // Start game loop
+        gameLoop();
+        
+        // Show welcome message
+        setTimeout(() => {
+          console.log('🎮 Bangkok Nights - ใช้ WASD หรือลูกศรเพื่อเดิน, SPACE เพื่อโต้ตอบ');
+        }, 1000);
+      } else {
+        console.error('Failed to initialize game elements, retrying...');
+        setTimeout(startGame, 100); // Retry after 100ms
+      }
+    }
+    
+    // Start game when DOM is ready
+    document.addEventListener('DOMContentLoaded', startGame);
+    
+    // Start immediately if DOM is already loaded
+    if (document.readyState !== 'loading') {
+      startGame();
+    }
+    
+    // Window resize handler
+    window.addEventListener('resize', () => {
+      updateCamera();
+    });
+    
+    // Prevent context menu on right click
+    document.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+    });
+    
+    // Prevent page scrolling with arrow keys
+    window.addEventListener('keydown', (e) => {
+      if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].indexOf(e.code) > -1) {
+        e.preventDefault();
+      }
+    }, false);
+  </script>
+</body>
+</html>

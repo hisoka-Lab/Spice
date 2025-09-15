@@ -1,0 +1,867 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>The Bar - Bangkok Nights</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin: 0 0 10px 0;
+            letter-spacing: -0.02em;
+        }
+        
+        .header p {
+            color: #6c757d;
+            font-size: 1.1rem;
+            margin: 0;
+        }
+        
+        .content-area {
+            display: flex;
+            min-height: 600px;
+        }
+        
+        .bar-area {
+            flex: 2;
+            background: #f4e4a6;
+            position: relative;
+            border-right: 3px solid #d4c190;
+        }
+        
+        .bar-controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+        
+        .btn-buy {
+            background: #ffd700;
+            color: #2c3e50;
+            border: 2px solid #e6c200;
+        }
+        
+        .btn-buy:hover {
+            background: #e6c200;
+            transform: translateY(-2px);
+        }
+        
+        .btn-bartender {
+            background: #20c997;
+            color: white;
+            border: 2px solid #1ba085;
+        }
+        
+        .btn-bartender:hover {
+            background: #1ba085;
+            transform: translateY(-2px);
+        }
+        
+        .characters-area {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 100px;
+            background: #8b7355;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            padding: 0 50px;
+        }
+        
+        .character {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 4px solid white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .character:hover {
+            transform: scale(1.1);
+        }
+        
+        .character.player {
+            background: #20c997;
+        }
+        
+        .character.npc1 {
+            background: #6c5ce7;
+        }
+        
+        .character.npc2 {
+            background: #fd79a8;
+        }
+        
+        .character.bartender {
+            background: #00b894;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+        }
+        
+        .chat-area {
+            flex: 1;
+            background: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-header {
+            padding: 20px;
+            border-bottom: 2px solid #e9ecef;
+            background: white;
+        }
+        
+        .chat-header h3 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            max-height: 400px;
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        
+        .message-content {
+            flex: 1;
+        }
+        
+        .message-name {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+        
+        .message-text {
+            background: white;
+            padding: 12px 16px;
+            border-radius: 18px;
+            border: 1px solid #e9ecef;
+            color: #495057;
+            line-height: 1.4;
+        }
+        
+        .message.ai .message-text {
+            background: #e3f2fd;
+            border-color: #bbdefb;
+        }
+        
+        .chat-input-area {
+            padding: 20px;
+            background: white;
+            border-top: 2px solid #e9ecef;
+        }
+        
+        .chat-input-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .chat-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        
+        .chat-input:focus {
+            border-color: #007bff;
+        }
+        
+        .send-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #007bff;
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+        
+        .send-btn:hover {
+            background: #0056b3;
+        }
+        
+        .typing-indicator {
+            display: none;
+            color: #6c757d;
+            font-style: italic;
+            padding: 10px 0;
+        }
+        
+        .drink-menu {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .drink-menu h3 {
+            margin: 0 0 20px 0;
+            color: #2c3e50;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+        
+        .drink-category {
+            margin-bottom: 25px;
+        }
+        
+        .drink-category h4 {
+            color: #495057;
+            font-size: 1.1rem;
+            margin: 0 0 15px 0;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .drink-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        
+        .drink-item:hover {
+            background: #e3f2fd;
+            border-color: #2196f3;
+            transform: translateX(5px);
+        }
+        
+        .drink-name {
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        
+        .drink-price {
+            color: #28a745;
+            font-weight: 600;
+        }
+        
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: none;
+        }
+        
+        .close-menu {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #6c757d;
+        }
+        
+        .player-stats {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.95);
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            font-size: 14px;
+        }
+        
+        .stat-item {
+            margin-bottom: 5px;
+            color: #495057;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>QuietPour Bar</h1>
+            <p>บาร์สำหรับคนที่ต้องการความสงบ - มานั่งคุยและแบ่งปันเรื่องราวในใจกัน</p>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Bar Area -->
+            <div class="bar-area">
+                <!-- Player Stats -->
+                <div class="player-stats">
+                    <div class="stat-item">👤 {{ user.username }}</div>
+                    <div class="stat-item">💰 ${{ profile.coins }}</div>
+                    <div class="stat-item">⭐ Level {{ profile.level }}</div>
+                    <div class="stat-item">🍺 Drinks: <span id="drinkCount">0</span></div>
+                    <div class="stat-item">😊 <span id="playerMood">Sober</span></div>
+                    <div style="margin-top: 10px;">
+                        <button onclick="exitToMap()" class="btn" style="background: #dc3545; color: white; padding: 8px 16px; font-size: 12px;">
+                            🗺️ กลับไปแมพ
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Bar Controls -->
+                <div class="bar-controls">
+                    <button class="btn btn-buy" onclick="toggleDrinkMenu()">🍺 สั่งเครื่องดื่ม</button>
+                    <button class="btn btn-bartender" onclick="talkToBartender()">🗣️ คุยกับบาร์เทนเดอร์</button>
+                </div>
+
+                <!-- Bartender -->
+                <div class="character bartender" title="Bartender - Khun Somchai"></div>
+
+                <!-- Characters Area -->
+                <div class="characters-area">
+                    <div class="character player" id="playerChar" title="{{ user.username }}"></div>
+                    <div class="character npc1" id="npc1" title="Nong Ploy" onclick="talkToNPC('npc1')"></div>
+                    <div class="character npc2" id="npc2" title="Uncle Somkid" onclick="talkToNPC('npc2')"></div>
+                </div>
+            </div>
+
+            <!-- Chat Area -->
+            <div class="chat-area">
+                <div class="chat-header">
+                    <h3>💬 บทสนทนาในบาร์</h3>
+                </div>
+
+                <div class="chat-messages" id="chatMessages">
+                    <!-- Sample messages -->
+                    <div class="message">
+                        <div class="message-avatar npc1"></div>
+                        <div class="message-content">
+                            <div class="message-name">น้องพลอย</div>
+                            <div class="message-text">สวัสดีค่ะทุกคน! เพิ่งได้ข้อเสนองานใหม่ ควรรับมั้ยคะ แม้ว่าจะต้องย้ายไปอยู่ต่างจังหวัด?</div>
+                        </div>
+                    </div>
+
+                    <div class="message ai">
+                        <div class="message-avatar bartender"></div>
+                        <div class="message-content">
+                            <div class="message-name">คุณสมชาย - บาร์เทนเดอร์</div>
+                            <div class="message-text">นี่เป็นการตัดสินใจที่สำคัญมากเลยนะครับ สิ่งที่สำคัญที่สุดสำหรับคุณตอนนี้คืออะไร - ความก้าวหน้าในการงาน หรือการอยู่ใกล้ครอบครัวและเพื่อนฝูง?</div>
+                        </div>
+                    </div>
+
+                    <div class="message">
+                        <div class="message-avatar npc2"></div>
+                        <div class="message-content">
+                            <div class="message-name">ลุงสมคิด</div>
+                            <div class="message-text">รู้มั้ย? ลุงเคยเจอสถานการณ์แบบนี้เมื่อ 20 ปีที่แล้ว ลุงเสียใจที่ไม่ได้คว้าโอกาสนั้นไว้</div>
+                        </div>
+                    </div>
+
+                    {% for msg in messages %}
+                        <div class="message {% if msg.message_type == 'bartender' %}ai{% endif %}">
+                            <div class="message-avatar {% if msg.message_type == 'bartender' %}bartender{% else %}player{% endif %}"></div>
+                            <div class="message-content">
+                                <div class="message-name">
+                                    {% if msg.sender %}{{ msg.sender.username }}{% else %}
+                                        {% if msg.message_type == 'bartender' %}Bartender{% else %}System{% endif %}
+                                    {% endif %}
+                                </div>
+                                <div class="message-text">{{ msg.content }}</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="typing-indicator" id="typingIndicator">
+                    Bartender is typing...
+                </div>
+
+                <div class="chat-input-area">
+                    <form method="post" action="{% url 'game:send_message' %}">
+                        {% csrf_token %}
+                        <div class="chat-input-container">
+                            <input type="text" name="message" class="chat-input" id="chatInput" placeholder="แบ่งปันเรื่องราวในใจ หรือถามคำแนะนำจากบาร์เทนเดอร์..." maxlength="200" required>
+                            <button type="submit" class="send-btn">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Drink Menu Modal -->
+    <div class="menu-overlay" id="menuOverlay" onclick="closeDrinkMenu()"></div>
+    <div class="drink-menu" id="drinkMenu">
+        <button class="close-menu" onclick="closeDrinkMenu()">&times;</button>
+        <h3>🍻 เมนูเครื่องดื่ม QuietPour Bar</h3>
+        
+        <div class="drink-category">
+            <h4>🍺 เบียร์ไทยแท้</h4>
+            <div class="drink-item" onclick="orderDrink('chang', 'Chang Classic', 45)">
+                <span class="drink-name">Chang Classic</span>
+                <span class="drink-price">$45</span>
+            </div>
+            <div class="drink-item" onclick="orderDrink('singha', 'Singha Premium', 50)">
+                <span class="drink-name">Singha Premium</span>
+                <span class="drink-price">$50</span>
+            </div>
+            <div class="drink-item" onclick="orderDrink('leo', 'Leo Gold', 40)">
+                <span class="drink-name">Leo Gold</span>
+                <span class="drink-price">$40</span>
+            </div>
+        </div>
+
+        <div class="drink-category">
+            <h4>🥃 เหล้าชั้นเลิศ</h4>
+            <div class="drink-item" onclick="orderDrink('thai_whiskey', 'Mekhong Whiskey', 120)">
+                <span class="drink-name">Mekhong Whiskey</span>
+                <span class="drink-price">$120</span>
+            </div>
+            <div class="drink-item" onclick="orderDrink('johnnie_walker', 'Johnnie Walker Black', 380)">
+                <span class="drink-name">JW Black Label</span>
+                <span class="drink-price">$380</span>
+            </div>
+            <div class="drink-item" onclick="orderDrink('hennessy', 'Hennessy VS', 450)">
+                <span class="drink-name">Hennessy VS</span>
+                <span class="drink-price">$450</span>
+            </div>
+        </div>
+
+        <div class="drink-category">
+            <h4>🍹 ค็อกเทลสูตรเด็ด</h4>
+            <div class="drink-item" onclick="orderDrink('bangkok_sunset', 'Bangkok Sunset', 180)">
+                <span class="drink-name">Bangkok Sunset</span>
+                <span class="drink-price">$180</span>
+            </div>
+            <div class="drink-item" onclick="orderDrink('thai_mojito', 'Thai Basil Mojito', 160)">
+                <span class="drink-name">Thai Basil Mojito</span>
+                <span class="drink-price">$160</span>
+            </div>
+            <div class="drink-item" onclick="orderDrink('mango_sticky', 'Mango Sticky Rice', 140)">
+                <span class="drink-name">Mango Sticky Rice</span>
+                <span class="drink-price">$140</span>
+            </div>
+        </div>
+
+        <div class="drink-category">
+            <h4>💧 เครื่องดื่มไม่มีแอลกอฮอล์</h4>
+            <div class="drink-item" onclick="orderDrink('thai_tea', 'Thai Iced Tea', 35)">
+                <span class="drink-name">Thai Iced Tea</span>
+                <span class="drink-price">$35</span>
+            </div>
+            <div class="drink-item" onclick="orderDrink('coconut_water', 'Fresh Coconut Water', 25)">
+                <span class="drink-name">Coconut Water</span>
+                <span class="drink-price">$25</span>
+            </div>
+        </div>
+    </div>
+    <script>
+        const chatInput = document.getElementById('chatInput');
+        const chatMessages = document.getElementById('chatMessages');
+        const drinkMenu = document.getElementById('drinkMenu');
+        const menuOverlay = document.getElementById('menuOverlay');
+        const typingIndicator = document.getElementById('typingIndicator');
+        
+        // Game state
+        let gameState = {
+            username: '{{ user.username }}',
+            money: {{ profile.coins }},
+            drinkCount: 0,
+            mood: 'sober'
+        };
+
+        // Mood system
+        const moods = {
+            sober: { text: 'Sober' },
+            tipsy: { text: 'Tipsy' },
+            drunk: { text: 'Drunk' },
+            wasted: { text: 'Wasted' }
+        };
+
+        // AI Bartender - คุณสมชาย บาร์เทนเดอร์ผู้เชี่ยวชาญ
+        const bartenderPersonality = {
+            greeting: [
+                "ยินดีต้อนรับสู่ QuietPour Bar ครับ! วันนี้มีอะไรอยากคุยกันมั้ยครับ?",
+                "สวัสดีครับ! เชิญนั่งสบายๆ แล้วเล่าให้ฟังหน่อยว่าเป็นยังไงบ้าง",
+                "ดีใจที่ได้เจอครับ! คืนนี้มีอะไรพิเศษที่อยากแบ่งปันมั้ย?",
+                "ครับผม! ผมสมชาย บาร์เทนเดอร์ที่นี่ มีอะไรให้ช่วยมั้ยครับ?"
+            ],
+            encouragement: [
+                "ชีวิตมันมีขึ้นๆ ลงๆ แต่ผมเชื่อว่าคุณแข็งแกร่งกว่าที่คิดนะครับ สู้ต่อไป! 💪",
+                "เฮ้ย อย่าไปโทษตัวเองมากเลย ทุกคนก็เจอปัญหากันทั้งนั้นแหละ นั่นแหละที่ทำให้เราเป็นมนุษย์",
+                "ผมเชื่อในตัวคุณครับ! ทุกปัญหาย่อมมีทางออก บางทีแค่เปลี่ยนมุมมองก็พอแล้ว",
+                "รู้มั้ยครับ บางทีสิ่งที่เราคิดว่าเป็นปัญหา กลับกลายเป็นโอกาสใหม่ก็ได้นะ"
+            ],
+            advice: [
+                "ผมทำงานหลังบาร์มาหลายปีแล้ว เรียนรู้ว่าความสุขมันมาจากภายในใจเรา อย่าไปกังวลกับสิ่งที่ควบคุมไม่ได้",
+                "ลูกค้าทุกคนที่มานั่งที่นี่ล้วนมีเรื่องราวของตัวเอง แต่รู้มั้ย? สุดท้ายทุกคนก็ผ่านมาได้หมด",
+                "บางทีการหยุดพัก คุยกับคนใหม่ๆ มันช่วยให้เราเห็นมุมมองใหม่ได้นะครับ",
+                "ในชีวิตนี้ สิ่งสำคัญไม่ใช่ว่าเราจะไม่ล้ม แต่เป็นว่าเราลุกขึ้นได้ไหม",
+                "คุณรู้มั้ย? คนที่แข็งแกร่งที่สุดไม่ใช่คนที่ไม่เคยร้องไห้ แต่เป็นคนที่ร้องไห้แล้วยังยิ้มได้"
+            ],
+            work_advice: [
+                "เรื่องงานเนี่ย... ผมว่าสำคัญที่สุดคือเราต้องรักในสิ่งที่ทำ ถ้าไม่รัก มันจะเหนื่อยมาก",
+                "งานดีๆ มันหาได้ แต่ความสุขในการทำงานนี่แหละที่หายาก",
+                "บางทีการเปลี่ยนงานใหม่ก็เป็นการเริ่มต้นใหม่ที่ดีนะครับ",
+                "ผมเคยเปลี่ยนงานมาหลายครั้ง จนมาเจอว่าการเป็นบาร์เทนเดอร์นี่แหละที่ใช่"
+            ],
+            relationship_advice: [
+                "เรื่องความรัก... ผมว่าสิ่งสำคัญที่สุดคือการสื่อสารกัน คุยกันให้เข้าใจ",
+                "ความรักที่แท้จริงไม่ใช่การหาคนที่สมบูรณ์แบบ แต่เป็นการยอมรับข้อบกพร่องของกันและกัน",
+                "บางทีการให้เวลากันก็สำคัญนะ อย่าเร่งรีบ ให้ความรักเติบโตไปตามธรรมชาติ",
+                "ถ้าเขาทำให้คุณเป็นคนที่ดีขึ้น นั่นแหละคือคนที่ใช่"
+            ],
+            money_advice: [
+                "เรื่องเงินทอง... ผมว่าเงินสำคัญ แต่ไม่ใช่ทุกอย่างในชีวิต",
+                "การออมเงินนี่สำคัญมาก แต่อย่าลืมใช้เงินกับสิ่งที่ทำให้เรามีความสุขบ้าง",
+                "เงินเป็นเครื่องมือ ไม่ใช่เป้าหมาย อย่าให้มันมาควบคุมชีวิตเรา",
+                "ผมเคยจนมาก่อน แต่ก็ผ่านมาได้ สิ่งสำคัญคือไม่ยอมแพ้"
+            ]
+        };
+
+        function addMessage(name, message, isAI = false, avatar = '') {
+            const messageEl = document.createElement('div');
+            messageEl.classList.add('message');
+            if (isAI) messageEl.classList.add('ai');
+            
+            const avatarClass = avatar || (isAI ? 'bartender' : 'player');
+            
+            messageEl.innerHTML = `
+                <div class="message-avatar ${avatarClass}"></div>
+                <div class="message-content">
+                    <div class="message-name">${name}</div>
+                    <div class="message-text">${message}</div>
+                </div>
+            `;
+            
+            chatMessages.appendChild(messageEl);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function talkToNPC(npcId) {
+            const npcMessages = {
+                'npc1': [
+                    "กำลังคิดจะเปลี่ยนงานใหม่อ่ะ กลัวแต่ก็ตื่นเต้นด้วย!",
+                    "มีใครรู้สึกเหมือนติดอยู่ในกิจวัตรประจำวันบ้างมั้ย?",
+                    "เพิ่งกลับจากเที่ยวมา มันเปลี่ยนมุมมองชีวิตเราเยอะเลย!",
+                    "วันนี้เหนื่อยมาก อยากมาดื่มเบียร์เย็นๆ สักแก้ว",
+                    "เพื่อนๆ ที่นี่น่ารักจัง ทำให้รู้สึกไม่เหงาเลย"
+                ],
+                'npc2': [
+                    "รู้มั้ย ตอนลุงอายุเท่าเธอ สมัยนั้นมันต่างจากตอนนี้มาก...",
+                    "ชีวิตสอนให้รู้ว่าเงินไม่ใช่ทุกอย่าง",
+                    "คำแนะนำที่ดีที่สุดที่ลุงจะให้? ฟังมากกว่าพูด",
+                    "ลุงเคยผ่านช่วงยากลำบากมามาก แต่ก็ผ่านมาได้",
+                    "เด็กสมัยนี้โชคดีนะ มีที่แบ่งปันความรู้สึกกันแบบนี้",
+                    "บางทีการมาดื่มเบียร์ที่นี่ มันช่วยให้ลุงลืมความเหงาได้"
+                ]
+            };
+            
+            const names = { 'npc1': 'น้องพลอย', 'npc2': 'ลุงสมคิด' };
+            const messages = npcMessages[npcId];
+            const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+            
+            addMessage(names[npcId], randomMessage, false, npcId);
+        }
+
+        function talkToBartender() {
+            const greetings = [
+                "วันนี้จะดื่มอะไรดีครับ?",
+                "เป็นยังไงบ้างครับ? ทุกอย่างเรียบร้อยมั้ย?",
+                "มีอะไรอยากคุยกันมั้ยครับ?",
+                "ต้องการคนฟังมั้ยครับ? ผมพร้อมฟังเสมอ",
+                "ดูเหมือนจะมีเรื่องในใจนะครับ อยากแบ่งปันมั้ย?"
+            ];
+            const greeting = greetings[Math.floor(Math.random() * greetings.length)];
+            addMessage('คุณสมชาย - บาร์เทนเดอร์', greeting, true);
+        }
+
+        function generateAIResponse(userMessage) {
+            const msg = userMessage.toLowerCase();
+            
+            // Thai greeting responses
+            if (msg.includes('สวัสดี') || msg.includes('hello') || msg.includes('hi') || msg.includes('hey') || msg.includes('ดี')) {
+                return bartenderPersonality.greeting[Math.floor(Math.random() * bartenderPersonality.greeting.length)];
+            }
+            
+            // Sad/problem responses (Thai)
+            if (msg.includes('เศร้า') || msg.includes('ปัญหา') || msg.includes('เครียด') || msg.includes('หดหู่') || msg.includes('เหงา') || 
+                msg.includes('sad') || msg.includes('problem') || msg.includes('stressed') || msg.includes('depressed') || msg.includes('worried')) {
+                return bartenderPersonality.encouragement[Math.floor(Math.random() * bartenderPersonality.encouragement.length)];
+            }
+            
+            // Work related (Thai)
+            if (msg.includes('งาน') || msg.includes('ทำงาน') || msg.includes('เจ้านาย') || msg.includes('บริษัท') || msg.includes('เปลี่ยนงาน') ||
+                msg.includes('work') || msg.includes('job') || msg.includes('career') || msg.includes('boss')) {
+                return bartenderPersonality.work_advice[Math.floor(Math.random() * bartenderPersonality.work_advice.length)];
+            }
+            
+            // Relationship related (Thai)
+            if (msg.includes('แฟน') || msg.includes('ความรัก') || msg.includes('คบ') || msg.includes('หย่า') || msg.includes('แต่งงาน') ||
+                msg.includes('relationship') || msg.includes('girlfriend') || msg.includes('boyfriend') || msg.includes('love') || msg.includes('dating')) {
+                return bartenderPersonality.relationship_advice[Math.floor(Math.random() * bartenderPersonality.relationship_advice.length)];
+            }
+            
+            // Money related (Thai)
+            if (msg.includes('เงิน') || msg.includes('แพง') || msg.includes('จน') || msg.includes('หนี้') || msg.includes('ออม') ||
+                msg.includes('money') || msg.includes('expensive') || msg.includes('broke') || msg.includes('financial')) {
+                return bartenderPersonality.money_advice[Math.floor(Math.random() * bartenderPersonality.money_advice.length)];
+            }
+            
+            // Drink related (Thai)
+            if (msg.includes('เหล้า') || msg.includes('เบียร์') || msg.includes('ดื่ม') || msg.includes('ค็อกเทล') ||
+                msg.includes('drink') || msg.includes('beer') || msg.includes('alcohol') || msg.includes('cocktail')) {
+                return "อยากดื่มอะไรดีครับ? ผมแนะนำเบียร์ช้างเย็นๆ หรือค็อกเทล Bangkok Sunset ก็อร่อยดีนะครับ! 🍺 กดปุ่ม 'สั่งเครื่องดื่ม' ได้เลย";
+            }
+            
+            // Advice requests (Thai)
+            if (msg.includes('แนะนำ') || msg.includes('ช่วย') || msg.includes('ควร') || msg.includes('คิดยังไง') || msg.includes('ทำไง') ||
+                msg.includes('advice') || msg.includes('help') || msg.includes('should i') || msg.includes('what do you think')) {
+                return bartenderPersonality.advice[Math.floor(Math.random() * bartenderPersonality.advice.length)];
+            }
+            
+            // Family related (Thai)
+            if (msg.includes('ครอบครัว') || msg.includes('พ่อ') || msg.includes('แม่') || msg.includes('ลูก') || msg.includes('พี่') || msg.includes('น้อง')) {
+                return "เรื่องครอบครัวเนี่ย... มันซับซ้อนแต่ก็สำคัญที่สุดในชีวิตเรานะครับ ครอบครัวคือที่พึ่งที่แท้จริง แม้บางทีจะมีปัญหากันบ้าง";
+            }
+            
+            // Health related (Thai)
+            if (msg.includes('สุขภาพ') || msg.includes('ป่วย') || msg.includes('เจ็บ') || msg.includes('โรค')) {
+                return "สุขภาพเป็นสิ่งสำคัญที่สุดเลยครับ ถ้าไม่สบายควรไปหาหมอนะ แต่ถ้าเป็นเรื่องจิตใจ การมาคุยกันแบบนี้ก็ช่วยได้เหมือนกัน";
+            }
+            
+            // Default responses with Thai personality
+            const defaultResponses = [
+                "น่าสนใจมากเลยครับ! เล่าให้ฟังต่อหน่อยสิ 🤔",
+                "ผมเข้าใจครับ ชีวิตมันซับซ้อนบางทีก็จริง",
+                "รู้มั้ย? นี่เป็นมุมมองที่ผมไม่เคยคิดมาก่อนเลย",
+                "ขอบคุณที่แบ่งปันให้ฟังนะครับ ดูเหมือนคุณจะมีเรื่องในใจเยอะ",
+                "เรื่องนี้ทำให้ผมนึกถึงลูกค้าคนหนึ่งที่เคยมาคุยด้วย...",
+                "ผมทำงานบาร์เทนเดอร์มาหลายปีแล้ว ทุกคนมีเรื่องราวที่ไม่เหมือนกัน คุณล่ะ?",
+                "บางทีการได้คุยกันแบบนี้ มันช่วยให้เราเข้าใจตัวเองมากขึ้นนะครับ",
+                "ผมชอบฟังเรื่องราวของคนต่างๆ มันทำให้ผมได้เรียนรู้อะไรใหม่ๆ เสมอ"
+            ];
+            
+            return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
+        }
+
+        function orderDrink(drinkType, drinkName, price) {
+            if (gameState.money < price) {
+                alert('เงินไม่พอครับ! 💸 ลองเลือกเครื่องดื่มที่ถูกกว่านี้ดูมั้ยครับ?');
+                return;
+            }
+            
+            // Send to Django backend
+            fetch('{% url "game:buy_drink" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    drink_type: drinkType,
+                    price: price
+                })
+            })
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    gameState.money = data.new_balance;
+                    gameState.drinkCount++;
+                    
+                    // Update mood based on drinks
+                    if (gameState.drinkCount >= 5) {
+                        gameState.mood = 'wasted';
+                    } else if (gameState.drinkCount >= 3) {
+                        gameState.mood = 'drunk';
+                    } else if (gameState.drinkCount >= 1) {
+                        gameState.mood = 'tipsy';
+                    }
+                    
+                    updateUI();
+                    
+                    // Add message about drinking
+                    addMessage(gameState.username, `*drinks ${drinkName}* 🍺`);
+                    
+                    // Bartender response
+                    setTimeout(function() {
+                        const drinkResponses = [
+                            `เลือกได้ดีมากครับ! ${drinkName} เป็นหนึ่งในเครื่องดื่มที่ดีที่สุดของเรา ขอให้เพลิดเพลินครับ! 🍺`,
+                            `${drinkName} นี่อร่อยมากเลยนะครับ คุณเลือกได้ใจจริงๆ 🍺`,
+                            `ขอบคุณที่เลือก ${drinkName} ครับ หวังว่าจะชอบนะ! 🍺`,
+                            `${drinkName} เป็นเครื่องดื่มที่ผมแนะนำเลยครับ ดื่มแล้วจะรู้สึกดีขึ้นแน่นอน! 🍺`
+                        ];
+                        const response = drinkResponses[Math.floor(Math.random() * drinkResponses.length)];
+                        addMessage('คุณสมชาย - บาร์เทนเดอร์', response, true);
+                    }, 1000);
+                    
+                    closeDrinkMenu();
+                } else {
+                    alert('เงินไม่พอครับ! 💸');
+                }
+            })
+            .catch(function(error) {
+                console.error('Error:', error);
+                alert('เกิดข้อผิดพลาดในการสั่งเครื่องดื่มครับ!');
+            });
+        }
+
+        function updateUI() {
+            document.getElementById('drinkCount').textContent = gameState.drinkCount;
+            document.getElementById('playerMood').textContent = moods[gameState.mood].text;
+        }
+
+        function toggleDrinkMenu() {
+            drinkMenu.style.display = 'block';
+            menuOverlay.style.display = 'block';
+        }
+
+        function closeDrinkMenu() {
+            drinkMenu.style.display = 'none';
+            menuOverlay.style.display = 'none';
+        }
+
+        // Initialize game
+        function initGame() {
+            updateUI();
+            
+            // Random NPC chatter - เพิ่มความถี่และความหลากหลาย
+            setInterval(function() {
+                if (Math.random() < 0.08) {
+                    const npcId = Math.random() < 0.5 ? 'npc1' : 'npc2';
+                    talkToNPC(npcId);
+                }
+            }, 8000);
+            
+            // Random bartender comments
+            setInterval(function() {
+                if (Math.random() < 0.03) {
+                    const randomComments = [
+                        "บรรยากาศดีจังเลยครับคืนนี้ 🌙",
+                        "มีใครอยากฟังเพลงอะไรเป็นพิเศษมั้ยครับ? 🎵",
+                        "เครื่องดื่มใหม่มาแล้วนะครับ ใครสนใจลองดูมั้ย? 🍹",
+                        "วันนี้มีลูกค้าใหม่หลายคนเลย ยินดีต้อนรับทุกคนครับ! 😊",
+                        "ถ้าใครมีเรื่องอยากคุย ผมพร้อมฟังเสมอนะครับ 👂"
+                    ];
+                    const comment = randomComments[Math.floor(Math.random() * randomComments.length)];
+                    addMessage('คุณสมชาย - บาร์เทนเดอร์', comment, true);
+                }
+            }, 15000);
+            
+            // Welcome message
+            setTimeout(function() {
+                const welcomeMessages = [
+                    `ยินดีต้อนรับสู่ QuietPour Bar ครับคุณ ${gameState.username}! วันนี้มีอะไรอยากคุยกันมั้ยครับ?`,
+                    `สวัสดีครับคุณ ${gameState.username}! ผมสมชาย บาร์เทนเดอร์ที่นี่ มีอะไรให้ช่วยมั้ยครับ?`,
+                    `ครับผม! คุณ ${gameState.username} มาแล้วเหรอครับ เชิญนั่งสบายๆ เลย มีอะไรอยากแบ่งปันมั้ย?`
+                ];
+                const welcome = welcomeMessages[Math.floor(Math.random() * welcomeMessages.length)];
+                addMessage('คุณสมชาย - บาร์เทนเดอร์', welcome, true);
+            }, 1000);
+        }
+
+        // Exit to map function
+        function exitToMap() {
+            if (confirm('ออกจากบาร์และกลับไปแมพหลักมั้ยครับ? 🗺️')) {
+                window.location.href = '{% url "game:map" %}';
+            }
+        }
+
+        // Auto-scroll chat to bottom
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        // Start the game
+        initGame();
+    </script>
+</body>
+</html>

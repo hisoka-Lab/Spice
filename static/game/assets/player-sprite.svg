@@ -1,0 +1,35 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <!-- Player Character - Thai Style -->
+  
+  <!-- Body -->
+  <rect x="12" y="16" width="8" height="12" fill="#4a90e2" stroke="#2c5aa0" stroke-width="1"/>
+  
+  <!-- Head -->
+  <circle cx="16" cy="10" r="6" fill="#fdbcb4" stroke="#e8a598" stroke-width="1"/>
+  
+  <!-- Hair -->
+  <path d="M10 8 Q16 4 22 8 Q22 6 16 6 Q10 6 10 8" fill="#2c1810"/>
+  
+  <!-- Eyes -->
+  <circle cx="13" cy="9" r="1" fill="#000"/>
+  <circle cx="19" cy="9" r="1" fill="#000"/>
+  
+  <!-- Mouth -->
+  <path d="M14 12 Q16 13 18 12" stroke="#000" stroke-width="0.5" fill="none"/>
+  
+  <!-- Arms -->
+  <rect x="8" y="18" width="4" height="8" fill="#fdbcb4" stroke="#e8a598" stroke-width="1"/>
+  <rect x="20" y="18" width="4" height="8" fill="#fdbcb4" stroke="#e8a598" stroke-width="1"/>
+  
+  <!-- Legs -->
+  <rect x="12" y="28" width="3" height="4" fill="#2c1810"/>
+  <rect x="17" y="28" width="3" height="4" fill="#2c1810"/>
+  
+  <!-- Thai-style details -->
+  <!-- Shirt pattern -->
+  <rect x="13" y="17" width="6" height="2" fill="#6bb6ff"/>
+  <rect x="13" y="20" width="6" height="1" fill="#6bb6ff"/>
+  
+  <!-- Belt -->
+  <rect x="12" y="24" width="8" height="1" fill="#8b4513"/>
+</svg>

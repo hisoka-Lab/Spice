@@ -1,0 +1,58 @@
+<svg width="80" height="80" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+  <!-- Professional Thai Bartender -->
+  
+  <!-- Body/Shirt -->
+  <rect x="25" y="40" width="30" height="35" fill="#ffffff" stroke="#e0e0e0" stroke-width="1"/>
+  
+  <!-- Head -->
+  <circle cx="40" cy="25" r="12" fill="#fdbcb4" stroke="#e8a598" stroke-width="1"/>
+  
+  <!-- Hair -->
+  <path d="M28 20 Q40 12 52 20 Q52 16 40 16 Q28 16 28 20" fill="#2c1810"/>
+  
+  <!-- Eyes -->
+  <circle cx="36" cy="23" r="1.5" fill="#000"/>
+  <circle cx="44" cy="23" r="1.5" fill="#000"/>
+  
+  <!-- Smile -->
+  <path d="M35 28 Q40 32 45 28" stroke="#000" stroke-width="1" fill="none"/>
+  
+  <!-- Mustache -->
+  <path d="M36 26 Q40 28 44 26" stroke="#8b4513" stroke-width="2" fill="none"/>
+  
+  <!-- Bow Tie -->
+  <path d="M35 38 L40 35 L45 38 L45 42 L40 39 L35 42 Z" fill="#dc143c"/>
+  <rect x="38" y="36" width="4" height="6" fill="#8b0000"/>
+  
+  <!-- Arms -->
+  <rect x="15" y="42" width="10" height="20" fill="#fdbcb4" stroke="#e8a598" stroke-width="1"/>
+  <rect x="55" y="42" width="10" height="20" fill="#fdbcb4" stroke="#e8a598" stroke-width="1"/>
+  
+  <!-- Hands -->
+  <circle cx="20" cy="65" r="3" fill="#fdbcb4"/>
+  <circle cx="60" cy="65" r="3" fill="#fdbcb4"/>
+  
+  <!-- Cocktail Shaker in hand -->
+  <rect x="57" y="55" width="6" height="15" fill="#c0c0c0" stroke="#a0a0a0" stroke-width="1"/>
+  <circle cx="60" cy="53" r="2" fill="#c0c0c0"/>
+  
+  <!-- Vest -->
+  <path d="M25 40 L30 45 L30 70 L25 75 L55 75 L50 70 L50 45 L55 40" fill="#2c3e50" stroke="#1a252f" stroke-width="1"/>
+  
+  <!-- Vest buttons -->
+  <circle cx="40" cy="50" r="1" fill="#ffd700"/>
+  <circle cx="40" cy="55" r="1" fill="#ffd700"/>
+  <circle cx="40" cy="60" r="1" fill="#ffd700"/>
+  
+  <!-- Name tag -->
+  <rect x="32" y="47" width="16" height="6" fill="#ffffff" stroke="#000" stroke-width="0.5"/>
+  <text x="40" y="51" text-anchor="middle" font-family="Arial" font-size="3" fill="#000">SOMCHAI</text>
+  
+  <!-- Professional details -->
+  <!-- Pocket watch chain -->
+  <path d="M45 50 Q50 52 48 58" stroke="#ffd700" stroke-width="1" fill="none"/>
+  <circle cx="48" cy="58" r="2" fill="#ffd700" stroke="#e6c200" stroke-width="0.5"/>
+  
+  <!-- Bar towel on shoulder -->
+  <rect x="22" y="38" width="8" height="3" fill="#ffffff" stroke="#e0e0e0" stroke-width="0.5"/>
+</svg>

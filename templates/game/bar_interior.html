@@ -1,0 +1,881 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>The Bar - Bangkok Nights</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin: 0 0 10px 0;
+            letter-spacing: -0.02em;
+        }
+        
+        .header p {
+            color: #6c757d;
+            font-size: 1.1rem;
+            margin: 0;
+        }
+        
+        .content-area {
+            display: flex;
+            min-height: 600px;
+        }
+        
+        .bar-area {
+            flex: 2;
+            background: 
+                linear-gradient(180deg, rgba(139, 115, 85, 0.8) 0%, rgba(139, 115, 85, 0.9) 100%),
+                repeating-linear-gradient(
+                    90deg,
+                    #8b7355 0px,
+                    #8b7355 20px,
+                    #a0845c 20px,
+                    #a0845c 40px
+                );
+            position: relative;
+            border-right: 3px solid #d4c190;
+            background-size: 100% 100%, 40px 40px;
+        }
+        
+        .bar-controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+        
+        .btn-buy {
+            background: #ffd700;
+            color: #2c3e50;
+            border: 2px solid #e6c200;
+        }
+        
+        .btn-buy:hover {
+            background: #e6c200;
+            transform: translateY(-2px);
+        }
+        
+        .btn-bartender {
+            background: #20c997;
+            color: white;
+            border: 2px solid #1ba085;
+        }
+        
+        .btn-bartender:hover {
+            background: #1ba085;
+            transform: translateY(-2px);
+        }
+        
+        .characters-area {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 100px;
+            background: 
+                linear-gradient(180deg, rgba(139, 115, 85, 0.9) 0%, rgba(101, 82, 65, 1) 100%),
+                repeating-linear-gradient(
+                    0deg,
+                    #654241 0px,
+                    #654241 2px,
+                    #8b7355 2px,
+                    #8b7355 4px
+                );
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            padding: 0 50px;
+            border-top: 3px solid #d4c190;
+        }
+        
+        .character {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 4px solid white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .character:hover {
+            transform: scale(1.1);
+        }
+        
+        .character.player {
+            background-image: url('{% static "game/assets/player-sprite.svg" %}');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-color: #20c997;
+            border: 3px solid #17a085;
+        }
+        
+        .character.npc1 {
+            background: 
+                radial-gradient(circle at 30% 30%, #ff6b9d 0%, #c44569 100%);
+            border: 3px solid #c44569;
+            position: relative;
+        }
+        
+        .character.npc1::before {
+            content: '👩';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+        }
+        
+        .character.npc2 {
+            background: 
+                radial-gradient(circle at 30% 30%, #4834d4 0%, #686de0 100%);
+            border: 3px solid #4834d4;
+            position: relative;
+        }
+        
+        .character.npc2::before {
+            content: '👨';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+        }
+        
+        .character.bartender {
+            background-image: url('{% static "game/assets/bartender.svg" %}');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-color: transparent;
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            border: 4px solid #ffd700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+        
+        .character.bartender:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+        }
+        
+        .chat-area {
+            flex: 1;
+            background: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-header {
+            padding: 20px;
+            border-bottom: 2px solid #e9ecef;
+            background: white;
+        }
+        
+        .chat-header h3 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            max-height: 400px;
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        
+        .message-content {
+            flex: 1;
+        }
+        
+        .message-name {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+        
+        .message-text {
+            background: white;
+            padding: 12px 16px;
+            border-radius: 18px;
+            border: 1px solid #e9ecef;
+            color: #495057;
+            line-height: 1.4;
+        }
+        
+        .message.ai .message-text {
+            background: #e3f2fd;
+            border-color: #bbdefb;
+        }
+        
+        .chat-input-area {
+            padding: 20px;
+            background: white;
+            border-top: 2px solid #e9ecef;
+        }
+        
+        .chat-input-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .chat-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        
+        .chat-input:focus {
+            border-color: #007bff;
+        }
+        
+        .send-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #007bff;
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+        
+        .send-btn:hover {
+            background: #0056b3;
+        }
+        
+        .typing-indicator {
+            display: none;
+            color: #6c757d;
+            font-style: italic;
+            padding: 10px 0;
+        }
+        
+        .drink-menu {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .drink-menu h3 {
+            margin: 0 0 20px 0;
+            color: #2c3e50;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+        
+        .drink-category {
+            margin-bottom: 25px;
+        }
+        
+        .drink-category h4 {
+            color: #495057;
+            font-size: 1.1rem;
+            margin: 0 0 15px 0;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .drink-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        
+        .drink-item:hover {
+            background: #e3f2fd;
+            border-color: #2196f3;
+            transform: translateX(5px);
+        }
+        
+        .drink-name {
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        
+        .drink-price {
+            color: #28a745;
+            font-weight: 600;
+        }
+        
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: none;
+        }
+        
+        .close-menu {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #6c757d;
+        }
+        
+        .player-stats {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.95);
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            font-size: 14px;
+        }
+        
+        .stat-item {
+            margin-bottom: 5px;
+            color: #495057;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>The Bar</h1>
+            <p>Pull up a chair, grab a drink, and share what's on your mind.</p>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Bar Area -->
+            <div class="bar-area">
+                <!-- Player Stats -->
+                <div class="player-stats">
+                    <div class="stat-item">👤 {{ user.username }}</div>
+                    <div class="stat-item">💰 ฿<span id="playerMoney">{{ profile.coins }}</span></div>
+                    <div class="stat-item">⭐ Level {{ profile.level }}</div>
+                    <div class="stat-item">🍺 Drinks: <span id="drinkCount">0</span></div>
+                    <div class="stat-item">😊 <span id="playerMood">Sober</span></div>
+                </div>
+
+                <!-- Bar Controls -->
+                <div class="bar-controls">
+                    <button class="btn btn-buy" onclick="toggleDrinkMenu()">🍺 Buy a Drink</button>
+                    <button class="btn btn-bartender" onclick="talkToBartender()">🗣️ Talk Bartender</button>
+                </div>
+
+                <!-- Bartender -->
+                <div class="character bartender" title="Bartender - Khun Somchai" onclick="talkToBartender()"></div>
+                
+                <!-- Bar Counter -->
+                <div style="position: absolute; bottom: 100px; left: 20%; right: 20%; height: 60px; background: linear-gradient(180deg, #8b4513 0%, #654321 100%); border-radius: 10px 10px 0 0; border: 3px solid #5d4037;"></div>
+                
+                <!-- Bar Stools -->
+                <div style="position: absolute; bottom: 60px; left: 25%; width: 40px; height: 40px; background: #8b4513; border-radius: 50% 50% 0 0; border: 2px solid #5d4037;"></div>
+                <div style="position: absolute; bottom: 60px; left: 40%; width: 40px; height: 40px; background: #8b4513; border-radius: 50% 50% 0 0; border: 2px solid #5d4037;"></div>
+                <div style="position: absolute; bottom: 60px; right: 40%; width: 40px; height: 40px; background: #8b4513; border-radius: 50% 50% 0 0; border: 2px solid #5d4037;"></div>
+                <div style="position: absolute; bottom: 60px; right: 25%; width: 40px; height: 40px; background: #8b4513; border-radius: 50% 50% 0 0; border: 2px solid #5d4037;"></div>
+                
+                <!-- Bottles on shelf -->
+                <div style="position: absolute; top: 20%; left: 10%; width: 15px; height: 40px; background: linear-gradient(180deg, #4caf50 0%, #2e7d32 100%); border-radius: 3px; opacity: 0.8;"></div>
+                <div style="position: absolute; top: 20%; left: 15%; width: 15px; height: 35px; background: linear-gradient(180deg, #ff9800 0%, #f57c00 100%); border-radius: 3px; opacity: 0.8;"></div>
+                <div style="position: absolute; top: 20%; left: 20%; width: 15px; height: 45px; background: linear-gradient(180deg, #2196f3 0%, #1976d2 100%); border-radius: 3px; opacity: 0.8;"></div>
+                
+                <!-- Ambient lighting -->
+                <div style="position: absolute; top: 10%; left: 30%; width: 40%; height: 20px; background: radial-gradient(ellipse, rgba(255, 215, 0, 0.3) 0%, transparent 70%); border-radius: 50%;"></div>
+
+                <!-- Characters Area -->
+                <div class="characters-area">
+                    <div class="character player" id="playerChar" title="{{ user.username }}"></div>
+                    <div class="character npc1" id="npc1" title="Nong Ploy" onclick="talkToNPC('npc1')"></div>
+                    <div class="character npc2" id="npc2" title="Uncle Somkid" onclick="talkToNPC('npc2')"></div>
+                </div>
+            </div>
+
+            <!-- Chat Area -->
+            <div class="chat-area">
+                <div class="chat-header">
+                    <h3>Community Chat</h3>
+                </div>
+
+                <div class="chat-messages" id="chatMessages">
+                    <!-- Sample messages -->
+                    <div class="message">
+                        <div class="message-avatar npc1"></div>
+                        <div class="message-content">
+                            <div class="message-name">Nong Ploy</div>
+                            <div class="message-text">Hey everyone! Just got a new job offer. Should I take it even if it means moving to another city?</div>
+                        </div>
+                    </div>
+
+                    <div class="message ai">
+                        <div class="message-avatar bartender"></div>
+                        <div class="message-content">
+                            <div class="message-name">Bartender</div>
+                            <div class="message-text">That's a big decision! What matters most to you right now - career growth or staying close to family and friends?</div>
+                        </div>
+                    </div>
+
+                    <div class="message">
+                        <div class="message-avatar npc2"></div>
+                        <div class="message-content">
+                            <div class="message-name">Uncle Somkid</div>
+                            <div class="message-text">You know what? I did the same thing 20 years ago. I regret not taking that chance.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="typing-indicator" id="typingIndicator">
+                    Bartender is typing...
+                </div>
+
+                <div class="chat-input-area">
+                    <div class="chat-input-container">
+                        <input type="text" class="chat-input" id="chatInput" placeholder="Share what's on your mind..." maxlength="200">
+                        <button class="send-btn" onclick="sendMessage()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Drink Menu Modal -->
+    <div class="menu-overlay" id="menuOverlay" onclick="closeDrinkMenu()"></div>
+    <div class="drink-menu" id="drinkMenu">
+        <button class="close-menu" onclick="closeDrinkMenu()">&times;</button>
+        <h3>🍻 Bar Menu</h3>
+        
+        <div class="drink-category">
+            <h4>🍺 Thai Beers</h4>
+            <div class="drink-item" onclick="orderDrink('chang', 'Chang Classic', 45)">
+                <span class="drink-name">Chang Classic</span>
+                <span class="drink-price">฿45</span>
+            </div>
+            <div class="drink-item" onclick="orderDrink('singha', 'Singha Premium', 50)">
+                <span class="drink-name">Singha Premium</span>
+                <span class="drink-price">฿50</span>
+            </div>
+            <div class="drink-item" onclick="orderDrink('leo', 'Leo Gold', 40)">
+                <span class="drink-name">Leo Gold</span>
+                <span class="drink-price">฿40</span>
+            </div>
+        </div>
+
+        <div class="drink-category">
+            <h4>🥃 Premium Spirits</h4>
+            <div class="drink-item" onclick="orderDrink('thai_whiskey', 'Mekhong Whiskey', 120)">
+                <span class="drink-name">Mekhong Whiskey</span>
+                <span class="drink-price">฿120</span>
+            </div>
+            <div class="drink-item" onclick="orderDrink('johnnie_walker', 'Johnnie Walker Black', 380)">
+                <span class="drink-name">JW Black Label</span>
+                <span class="drink-price">฿380</span>
+            </div>
+            <div class="drink-item" onclick="orderDrink('hennessy', 'Hennessy VS', 450)">
+                <span class="drink-name">Hennessy VS</span>
+                <span class="drink-price">฿450</span>
+            </div>
+        </div>
+
+        <div class="drink-category">
+            <h4>🍹 Signature Cocktails</h4>
+            <div class="drink-item" onclick="orderDrink('bangkok_sunset', 'Bangkok Sunset', 180)">
+                <span class="drink-name">Bangkok Sunset</span>
+                <span class="drink-price">฿180</span>
+            </div>
+            <div class="drink-item" onclick="orderDrink('thai_mojito', 'Thai Basil Mojito', 160)">
+                <span class="drink-name">Thai Basil Mojito</span>
+                <span class="drink-price">฿160</span>
+            </div>
+            <div class="drink-item" onclick="orderDrink('mango_sticky', 'Mango Sticky Rice', 140)">
+                <span class="drink-name">Mango Sticky Rice</span>
+                <span class="drink-price">฿140</span>
+            </div>
+        </div>
+
+        <div class="drink-category">
+            <h4>💧 Non-Alcoholic</h4>
+            <div class="drink-item" onclick="orderDrink('thai_tea', 'Thai Iced Tea', 35)">
+                <span class="drink-name">Thai Iced Tea</span>
+                <span class="drink-price">฿35</span>
+            </div>
+            <div class="drink-item" onclick="orderDrink('coconut_water', 'Fresh Coconut Water', 25)">
+                <span class="drink-name">Coconut Water</span>
+                <span class="drink-price">฿25</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const chatInput = document.getElementById('chatInput');
+        const chatMessages = document.getElementById('chatMessages');
+        const drinkMenu = document.getElementById('drinkMenu');
+        const menuOverlay = document.getElementById('menuOverlay');
+        const typingIndicator = document.getElementById('typingIndicator');
+        
+        // Game state
+        let gameState = {
+            username: '{{ user.username }}',
+            money: {{ profile.coins }},
+            drinkCount: 0,
+            mood: 'sober'
+        };
+
+        // Mood system
+        const moods = {
+            sober: { text: 'Sober' },
+            tipsy: { text: 'Tipsy' },
+            drunk: { text: 'Drunk' },
+            wasted: { text: 'Wasted' }
+        };
+
+        // AI Bartender responses
+        const bartenderPersonality = {
+            greeting: [
+                "Welcome to The Bar! What's on your mind today?",
+                "Hey there! Pull up a chair and tell me what's going on.",
+                "Good to see you! What brings you here tonight?"
+            ],
+            encouragement: [
+                "Life has its ups and downs, but you're stronger than you think. Keep going! 💪",
+                "Hey, don't be so hard on yourself. We all face challenges - that's what makes us human.",
+                "I believe in you! Every problem has a solution, sometimes we just need to look at it differently."
+            ],
+            advice: [
+                "You know, in my years behind this bar, I've learned that happiness comes from within. Don't worry about things you can't control.",
+                "Every person who sits at this bar has their own story. But you know what? They all find their way through eventually.",
+                "Sometimes taking a step back, having a good conversation, and seeing things from a new perspective can make all the difference."
+            ]
+        };
+
+        function addMessage(name, message, isAI = false, avatar = '') {
+            const messageEl = document.createElement('div');
+            messageEl.classList.add('message');
+            if (isAI) messageEl.classList.add('ai');
+            
+            const avatarClass = avatar || (isAI ? 'bartender' : 'player');
+            
+            messageEl.innerHTML = `
+                <div class="message-avatar ${avatarClass}"></div>
+                <div class="message-content">
+                    <div class="message-name">${name}</div>
+                    <div class="message-text">${message}</div>
+                </div>
+            `;
+            
+            chatMessages.appendChild(messageEl);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function talkToNPC(npcId) {
+            const npcMessages = {
+                'npc1': [
+                    "I'm thinking about changing careers. It's scary but exciting!",
+                    "Anyone else feel like they're stuck in a routine?",
+                    "Just got back from traveling - it really changed my perspective!"
+                ],
+                'npc2': [
+                    "You know, when I was your age, things were different...",
+                    "Life teaches you that money isn't everything.",
+                    "The best advice I can give? Listen more, talk less."
+                ]
+            };
+            
+            const names = { 'npc1': 'Nong Ploy', 'npc2': 'Uncle Somkid' };
+            const messages = npcMessages[npcId];
+            const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+            
+            addMessage(names[npcId], randomMessage, false, npcId);
+        }
+
+        function talkToBartender() {
+            const greetings = [
+                "What can I get you today?",
+                "How's everything going?",
+                "What's on your mind?",
+                "Need someone to talk to?"
+            ];
+            const greeting = greetings[Math.floor(Math.random() * greetings.length)];
+            addMessage('Bartender', greeting, true);
+        }
+
+        async function sendMessage() {
+            const message = chatInput.value.trim();
+            if (!message) return;
+            
+            // Add user message
+            addMessage(gameState.username, message);
+            chatInput.value = '';
+            
+            // Show typing indicator
+            typingIndicator.style.display = 'block';
+            
+            // Simulate AI thinking time
+            await new Promise(resolve => setTimeout(resolve, 1500 + Math.random() * 1000));
+            
+            typingIndicator.style.display = 'none';
+            
+            // Generate AI response
+            const aiResponse = generateAIResponse(message);
+            addMessage('Bartender', aiResponse, true);
+        }
+
+        function generateAIResponse(userMessage) {
+            const msg = userMessage.toLowerCase();
+            
+            // Greeting responses
+            if (msg.includes('hello') || msg.includes('hi') || msg.includes('hey')) {
+                return bartenderPersonality.greeting[Math.floor(Math.random() * bartenderPersonality.greeting.length)];
+            }
+            
+            // Sad/problem responses
+            if (msg.includes('sad') || msg.includes('problem') || msg.includes('stressed') || msg.includes('depressed') || msg.includes('worried')) {
+                return bartenderPersonality.encouragement[Math.floor(Math.random() * bartenderPersonality.encouragement.length)];
+            }
+            
+            // Advice requests
+            if (msg.includes('advice') || msg.includes('help') || msg.includes('should i') || msg.includes('what do you think')) {
+                return bartenderPersonality.advice[Math.floor(Math.random() * bartenderPersonality.advice.length)];
+            }
+            
+            // Drink related
+            if (msg.includes('drink') || msg.includes('beer') || msg.includes('alcohol') || msg.includes('cocktail')) {
+                return "Looking for something to drink? I'd recommend our Chang beer or maybe a Bangkok Sunset cocktail! 🍺 Just click the 'Buy a Drink' button.";
+            }
+            
+            // Money related
+            if (msg.includes('money') || msg.includes('expensive') || msg.includes('broke') || msg.includes('financial')) {
+                return "Money troubles, huh? I get it. Sometimes investing in a little happiness is worth it though. Check out our affordable options! 💰";
+            }
+            
+            // Work related
+            if (msg.includes('work') || msg.includes('job') || msg.includes('career') || msg.includes('boss')) {
+                return "Work can be tough, I hear you. Everyone needs to make a living, but don't forget to take care of yourself too. Maybe grab a drink and unwind a bit? 😊";
+            }
+            
+            // Relationship related
+            if (msg.includes('relationship') || msg.includes('girlfriend') || msg.includes('boyfriend') || msg.includes('love') || msg.includes('dating')) {
+                return "Ah, matters of the heart! Those can be the trickiest of all. Remember, communication is key in any relationship. What's going on?";
+            }
+            
+            // Default responses with personality
+            const defaultResponses = [
+                "That's really interesting! Tell me more about that. 🤔",
+                "I hear you. Life can be complicated sometimes.",
+                "You know what? That's a perspective I hadn't considered before.",
+                "Thanks for sharing that with me. It sounds like you've got a lot on your mind.",
+                "That reminds me of something another customer told me once...",
+                "I've been bartending for years, and everyone's story is unique. What's yours?"
+            ];
+            
+            return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
+        }
+
+        function orderDrink(drinkType, drinkName, price) {
+            if (gameState.money < price) {
+                alert('Not enough money! 💸 Try choosing a cheaper drink.');
+                return;
+            }
+            
+            // Send to Django backend
+            fetch('{% url "game:buy_drink" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    drink_type: drinkType,
+                    price: price
+                })
+            })
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    gameState.money = data.new_balance;
+                    gameState.drinkCount++;
+                    
+                    // Update mood based on drinks
+                    if (gameState.drinkCount >= 5) {
+                        gameState.mood = 'wasted';
+                    } else if (gameState.drinkCount >= 3) {
+                        gameState.mood = 'drunk';
+                    } else if (gameState.drinkCount >= 1) {
+                        gameState.mood = 'tipsy';
+                    }
+                    
+                    updateUI();
+                    
+                    // Add message about drinking
+                    addMessage(gameState.username, `*drinks ${drinkName}* 🍺`);
+                    
+                    // Bartender response
+                    setTimeout(function() {
+                        const drinkResponse = `Great choice! ${drinkName} is one of our finest. Enjoy! 🍺`;
+                        addMessage('Bartender', drinkResponse, true);
+                    }, 1000);
+                    
+                    closeDrinkMenu();
+                } else {
+                    alert('Not enough money! 💸');
+                }
+            })
+            .catch(function(error) {
+                console.error('Error:', error);
+                alert('Error ordering drink!');
+            });
+        }
+
+        function updateUI() {
+            document.getElementById('playerMoney').textContent = gameState.money;
+            document.getElementById('drinkCount').textContent = gameState.drinkCount;
+            document.getElementById('playerMood').textContent = moods[gameState.mood].text;
+        }
+
+        function toggleDrinkMenu() {
+            drinkMenu.style.display = 'block';
+            menuOverlay.style.display = 'block';
+        }
+
+        function closeDrinkMenu() {
+            drinkMenu.style.display = 'none';
+            menuOverlay.style.display = 'none';
+        }
+
+        // Initialize game
+        function initGame() {
+            updateUI();
+            
+            // Random NPC chatter
+            setInterval(function() {
+                if (Math.random() < 0.05) {
+                    const npcId = Math.random() < 0.5 ? 'npc1' : 'npc2';
+                    talkToNPC(npcId);
+                }
+            }, 10000);
+            
+            // Welcome message
+            setTimeout(function() {
+                addMessage('Bartender', `Welcome to The Bar, ${gameState.username}! What's on your mind today?`, true);
+            }, 1000);
+        }
+
+        // Event listeners
+        chatInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Exit bar function
+        function exitBar() {
+            if (confirm('Leave the bar? 🚪')) {
+                window.location.href = '{% url "game:map" %}';
+            }
+        }
+
+        // Add exit button functionality
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                exitBar();
+            }
+        });
+
+        // Start the game
+        initGame();
+    </script>
+</body>
+</html>
