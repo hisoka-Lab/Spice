@@ -1,0 +1,832 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Songtor ส่งต่อ</title>
+<meta name="description" content="ส่งต่อ — ตู้เซฟดิจิทัลและผู้ส่งมอบคำสั่งเสีย ดูแลรหัสผ่าน คริปโต จดหมาย และบัญชีรายเดือน ให้ถึงมือคนที่คุณรักในวันที่คุณไม่อยู่">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anuphan:wght@300;400;500;600&family=Charm:wght@400;700&family=IBM+Plex+Mono:wght@400;500&family=Trirong:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+/* Layout: a calm long-read. Hero pairs the promise with a live check-in card; sections alternate
+   open paper and one deep "night" band; content sits in a 1120px column with a 20px gutter. */
+:root {
+  --paper: #EDF0F4;      /* misty blue-grey ground */
+  --surface: #F9FAFC;    /* cards */
+  --ink: #18203A;        /* text, night band */
+  --muted: #59627C;
+  --line: #D3D9E3;
+  --marigold: #C97F12;   /* ดาวเรือง — the one accent */
+  --marigold-soft: #F6E5C8;
+  --jade: #2C8566;       /* "still here" state */
+  --jade-soft: #D6EEE5;
+  --alert: #B4472F;
+  --night: #18203A;
+  --night-ink: #E8ECF5;
+  --night-muted: #A3ACC6;
+  --night-line: #2F3856;
+  --letter: #FBF8F1;
+
+  --f-display: "Trirong", "Noto Serif Thai", Georgia, serif;
+  --f-body: "Anuphan", "Noto Sans Thai", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --f-hand: "Charm", "Trirong", cursive;
+
+  --s-1: .8125rem; --s0: 1rem; --s1: 1.125rem; --s2: 1.375rem; --s3: 1.875rem; --s4: 2.5rem; --s5: 3.25rem;
+  --radius: 14px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #10152A; --surface: #182039; --ink: #E7EBF4; --muted: #9CA5BF; --line: #2A3352;
+    --marigold: #EDA940; --marigold-soft: #3A2E1A; --jade: #5BC39C; --jade-soft: #173A30; --alert: #E57A60;
+    --night: #0A0E1D; --night-ink: #E7EBF4; --night-muted: #9CA5BF; --night-line: #252D49; --letter: #1F2640;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #10152A; --surface: #182039; --ink: #E7EBF4; --muted: #9CA5BF; --line: #2A3352;
+  --marigold: #EDA940; --marigold-soft: #3A2E1A; --jade: #5BC39C; --jade-soft: #173A30; --alert: #E57A60;
+  --night: #0A0E1D; --night-ink: #E7EBF4; --night-muted: #9CA5BF; --night-line: #252D49; --letter: #1F2640;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { animation: none !important; transition: none !important; } }
+body {
+  margin: 0; background: var(--paper); color: var(--ink);
+  font-family: var(--f-body); font-size: var(--s0); line-height: 1.7; font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+}
+img, svg { max-width: 100%; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--marigold); outline-offset: 3px; border-radius: 4px; }
+[hidden] { display: none !important; }
+
+.wrap { max-width: 1120px; margin-inline: auto; padding-inline: 20px; }
+section { padding-block: clamp(56px, 9vw, 112px); }
+h1, h2, h3 { font-family: var(--f-display); font-weight: 600; line-height: 1.3; text-wrap: balance; margin: 0; }
+h2 { font-size: clamp(var(--s3), 4vw, var(--s4)); }
+h3 { font-size: var(--s2); }
+p { margin: 0; }
+.eyebrow { font-family: var(--f-mono); font-size: var(--s-1); letter-spacing: .08em; text-transform: uppercase; color: var(--marigold); }
+.lede { color: var(--muted); font-size: var(--s1); max-width: 60ch; }
+.sec-head { display: grid; gap: 14px; margin-bottom: clamp(32px, 5vw, 56px); max-width: 720px; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  font: 500 var(--s0)/1 var(--f-body); padding: 14px 22px; border-radius: 999px;
+  border: 1px solid transparent; cursor: pointer; text-decoration: none; transition: transform .15s, background .15s;
+}
+.btn:active { transform: translateY(1px); }
+.btn-primary { background: var(--ink); color: var(--paper); }
+.btn-primary:hover { background: var(--marigold); color: var(--night); }
+.btn-ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+.btn-ghost:hover { border-color: var(--ink); }
+
+/* ---------- nav ---------- */
+.nav {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
+  background: color-mix(in srgb, var(--paper) 88%, transparent); backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+.nav .wrap { display: flex; align-items: center; gap: 24px; min-height: 64px; }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.brand-mark { width: 30px; height: 30px; }
+.brand-name { font-family: var(--f-display); font-weight: 600; font-size: var(--s1); }
+.brand-name small { font-family: var(--f-mono); font-size: .7rem; color: var(--muted); letter-spacing: .1em; margin-left: 6px; font-weight: 400; }
+.nav-links { display: flex; gap: 22px; margin-left: auto; font-size: .95rem; }
+.nav-links a { text-decoration: none; color: var(--muted); }
+.nav-links a:hover { color: var(--ink); }
+.nav .btn { padding: 10px 18px; font-size: .95rem; }
+@media (max-width: 860px) { .nav-links { display: none; } .nav .btn { margin-left: auto; } }
+
+/* ---------- hero ---------- */
+.hero { padding-block: clamp(40px, 7vw, 88px) clamp(56px, 8vw, 96px); }
+.hero .wrap { display: grid; grid-template-columns: 1.1fr .9fr; gap: clamp(32px, 5vw, 72px); align-items: center; }
+.hero-copy { display: grid; gap: 22px; min-width: 0; }
+.hero h1 { font-size: clamp(2.2rem, 5.2vw, var(--s5)); font-weight: 400; line-height: 1.25; }
+.hero h1 em { font-style: italic; color: var(--marigold); }
+.hero .lede { font-size: var(--s1); }
+.hero-ctas { display: flex; flex-wrap: wrap; gap: 12px; }
+.hero-note { font-size: var(--s-1); color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 18px; }
+.hero-note span::before { content: "✓"; color: var(--jade); margin-right: 6px; }
+@media (max-width: 900px) { .hero .wrap { grid-template-columns: 1fr; } }
+
+/* check-in card */
+.pulse {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 20px;
+  padding: 24px; display: grid; gap: 20px; min-width: 0;
+  box-shadow: 0 30px 60px -40px color-mix(in srgb, var(--ink) 45%, transparent);
+}
+.pulse-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.pulse-top .who { font-weight: 500; }
+.chip { font-family: var(--f-mono); font-size: .72rem; letter-spacing: .05em; padding: 4px 10px; border-radius: 999px; background: var(--jade-soft); color: var(--jade); white-space: nowrap; }
+.chip.warn { background: var(--marigold-soft); color: var(--marigold); }
+.chip.crit { background: color-mix(in srgb, var(--alert) 16%, transparent); color: var(--alert); }
+.pulse-body { display: grid; grid-template-columns: auto 1fr; gap: 22px; align-items: center; }
+.ring { width: 132px; height: 132px; position: relative; }
+.ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.ring .track { fill: none; stroke: var(--line); stroke-width: 9; }
+.ring .meter { fill: none; stroke: var(--jade); stroke-width: 9; stroke-linecap: round; transition: stroke-dashoffset .6s ease, stroke .3s; }
+.ring-label { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
+.ring-label b { font-family: var(--f-mono); font-size: 2rem; font-weight: 500; line-height: 1; font-variant-numeric: tabular-nums; }
+.ring-label span { font-size: .75rem; color: var(--muted); }
+.pulse-meta { display: grid; gap: 10px; font-size: .92rem; min-width: 0; }
+.pulse-meta div { display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px dashed var(--line); padding-bottom: 6px; }
+.pulse-meta dt { color: var(--muted); }
+.pulse-meta dd { margin: 0; font-family: var(--f-mono); font-size: .85rem; text-align: right; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 3px; gap: 2px; }
+.seg button { font: 500 .8rem var(--f-body); border: 0; background: transparent; color: var(--muted); padding: 5px 12px; border-radius: 999px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.pulse-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.pulse-actions .btn { flex: 1 1 160px; }
+.btn-alive { background: var(--jade); color: #fff; }
+.btn-alive:hover { filter: brightness(1.08); }
+.ladder { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; border-top: 1px solid var(--line); padding-top: 14px; }
+.ladder li { display: grid; grid-template-columns: 54px 14px 1fr; gap: 10px; align-items: start; font-size: .86rem; color: var(--muted); padding-block: 5px; transition: color .3s; }
+.ladder .d { font-family: var(--f-mono); font-size: .75rem; padding-top: 2px; font-variant-numeric: tabular-nums; }
+.ladder .dot { width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--line); margin-top: 6px; background: var(--surface); transition: all .3s; }
+.ladder li.on { color: var(--ink); }
+.ladder li.on .dot { border-color: var(--marigold); background: var(--marigold); }
+.ladder li.on.last .dot { border-color: var(--alert); background: var(--alert); }
+.ladder-cap { font-family: var(--f-mono); font-size: .72rem; letter-spacing: .06em; color: var(--muted); text-transform: uppercase; margin-bottom: 4px; }
+@media (max-width: 460px) { .pulse-body { grid-template-columns: 1fr; justify-items: center; } .pulse-meta { width: 100%; } }
+
+.toast {
+  position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 20px);
+  background: var(--ink); color: var(--paper); padding: 12px 20px; border-radius: 999px; font-size: .92rem;
+  opacity: 0; pointer-events: none; transition: all .3s; z-index: 50; max-width: calc(100% - 32px); text-align: center;
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* ---------- footprint calculator ---------- */
+.footprint { border-top: 1px solid var(--line); }
+.fp-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: clamp(24px, 4vw, 48px); align-items: start; }
+.fp-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; min-width: 0; }
+.fp-item { position: relative; }
+.fp-item input { position: absolute; opacity: 0; pointer-events: none; }
+.fp-item label {
+  display: flex; justify-content: space-between; align-items: center; gap: 10px; cursor: pointer;
+  padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); font-size: .93rem;
+  transition: border-color .15s, background .15s;
+}
+.fp-item label .p { font-family: var(--f-mono); font-size: .8rem; color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.fp-item input:checked + label { border-color: var(--marigold); background: color-mix(in srgb, var(--marigold-soft) 60%, var(--surface)); }
+.fp-item input:checked + label::before { content: "●"; color: var(--marigold); font-size: .6rem; margin-right: -2px; }
+.fp-item input:focus-visible + label { outline: 2px solid var(--marigold); outline-offset: 2px; }
+.fp-out { position: sticky; top: 88px; background: var(--night); color: var(--night-ink); border-radius: 20px; padding: 28px; display: grid; gap: 18px; }
+.fp-out .k { font-family: var(--f-mono); font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; color: var(--night-muted); }
+.fp-out .big { font-family: var(--f-mono); font-size: clamp(2.2rem, 5vw, 3rem); font-weight: 500; line-height: 1.1; font-variant-numeric: tabular-nums; color: var(--marigold); }
+.fp-out .row { display: flex; justify-content: space-between; gap: 12px; border-top: 1px solid var(--night-line); padding-top: 12px; font-size: .92rem; }
+.fp-out .row b { font-family: var(--f-mono); font-weight: 500; font-variant-numeric: tabular-nums; }
+.fp-out small { color: var(--night-muted); font-size: .78rem; line-height: 1.5; }
+@media (max-width: 860px) { .fp-grid { grid-template-columns: 1fr; } .fp-out { position: static; } }
+@media (max-width: 480px) { .fp-list { grid-template-columns: 1fr; } }
+
+/* ---------- core features ---------- */
+.features { background: var(--surface); border-block: 1px solid var(--line); }
+.feat { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(28px, 5vw, 64px); align-items: center; padding-block: clamp(28px, 4vw, 48px); }
+.feat + .feat { border-top: 1px solid var(--line); }
+.feat-copy { display: grid; gap: 14px; min-width: 0; }
+.feat-copy ul { margin: 6px 0 0; padding: 0; list-style: none; display: grid; gap: 8px; color: var(--muted); }
+.feat-copy li { padding-left: 22px; position: relative; }
+.feat-copy li::before { content: ""; position: absolute; left: 0; top: .72em; width: 10px; height: 1.5px; background: var(--marigold); }
+.feat-tag { font-family: var(--f-mono); font-size: .75rem; color: var(--muted); letter-spacing: .05em; }
+.feat:nth-child(even) .feat-copy { order: 2; }
+@media (max-width: 860px) { .feat { grid-template-columns: 1fr; } .feat:nth-child(even) .feat-copy { order: 0; } }
+
+/* vault diagram */
+.vault { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; display: grid; gap: 16px; min-width: 0; }
+.vault-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.vault-box { flex: 1 1 140px; border: 1px solid var(--line); background: var(--surface); border-radius: 10px; padding: 12px 14px; font-size: .88rem; min-width: 0; }
+.vault-box .t { font-family: var(--f-mono); font-size: .7rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.cipher { font-family: var(--f-mono); font-size: .76rem; color: var(--muted); word-break: break-all; line-height: 1.5; }
+.arrow { font-family: var(--f-mono); color: var(--marigold); }
+.shards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.shard { border: 1px dashed var(--line); border-radius: 10px; padding: 12px; text-align: center; font-size: .84rem; background: var(--surface); }
+.shard b { display: block; font-family: var(--f-mono); color: var(--marigold); font-weight: 500; font-size: .8rem; }
+.shard.lock b { color: var(--muted); }
+.vault-foot { font-size: .82rem; color: var(--muted); }
+@media (max-width: 420px) { .shards { grid-template-columns: 1fr; } }
+
+/* letter */
+.letter {
+  background: var(--letter); border: 1px solid var(--line); border-radius: 4px; padding: 28px 28px 22px;
+  box-shadow: 10px 10px 0 -1px var(--paper), 10px 10px 0 0 var(--line); display: grid; gap: 16px; min-width: 0;
+}
+.letter-meta { display: flex; flex-wrap: wrap; gap: 8px; }
+.letter-body { font-family: var(--f-hand); font-size: 1.32rem; line-height: 1.75; }
+.letter-sign { font-family: var(--f-hand); font-size: 1.3rem; text-align: right; color: var(--muted); }
+.cond { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; border-top: 1px solid var(--line); padding-top: 14px; }
+.cond button { font: 400 .82rem var(--f-body); background: transparent; border: 1px solid var(--line); color: var(--muted); border-radius: 10px; padding: 8px; cursor: pointer; text-align: left; line-height: 1.35; }
+.cond button b { display: block; color: var(--ink); font-weight: 500; }
+.cond button[aria-pressed="true"] { border-color: var(--marigold); background: color-mix(in srgb, var(--marigold-soft) 55%, transparent); }
+.cond-note { font-size: .82rem; color: var(--muted); min-height: 2.6em; }
+@media (max-width: 480px) { .cond { grid-template-columns: 1fr; } }
+
+/* canceller */
+.cancel { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 8px 0; min-width: 0; }
+.cancel-row { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 12px 20px; font-size: .92rem; }
+.cancel-row + .cancel-row { border-top: 1px solid var(--line); }
+.cancel-row .sub { font-size: .78rem; color: var(--muted); }
+.cancel-row .st { font-family: var(--f-mono); font-size: .72rem; padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
+.st.done { background: var(--jade-soft); color: var(--jade); }
+.st.wait { background: var(--marigold-soft); color: var(--marigold); }
+.st.mem { background: color-mix(in srgb, var(--ink) 9%, transparent); color: var(--ink); }
+
+/* ---------- night band: more ideas ---------- */
+.night { background: var(--night); color: var(--night-ink); }
+.night .lede { color: var(--night-muted); }
+.ideas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--night-line); border: 1px solid var(--night-line); border-radius: var(--radius); overflow: hidden; }
+.idea { background: var(--night); padding: 26px; display: grid; gap: 10px; align-content: start; }
+.idea h3 { font-size: var(--s1); }
+.idea p { color: var(--night-muted); font-size: .93rem; }
+.idea .k { font-family: var(--f-mono); font-size: .7rem; color: var(--marigold); letter-spacing: .06em; text-transform: uppercase; }
+@media (max-width: 900px) { .ideas { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .ideas { grid-template-columns: 1fr; } }
+
+/* ---------- after-death checklist ---------- */
+.steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; counter-reset: s; }
+.step { padding: 22px 22px 0 0; border-top: 2px solid var(--line); display: grid; gap: 8px; align-content: start; position: relative; }
+.step::before { counter-increment: s; content: counter(s, decimal-leading-zero); font-family: var(--f-mono); font-size: .8rem; color: var(--marigold); }
+.step .when { font-family: var(--f-mono); font-size: .72rem; color: var(--muted); }
+.step p { color: var(--muted); font-size: .92rem; }
+.step:first-child { border-top-color: var(--marigold); }
+@media (max-width: 860px) { .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 20px; } }
+@media (max-width: 480px) { .steps { grid-template-columns: 1fr; } }
+
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(28px, 5vw, 64px); margin-top: clamp(48px, 7vw, 80px); }
+.will { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 26px; display: grid; gap: 14px; min-width: 0; }
+.will table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+.will th, .will td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.will th { font-family: var(--f-mono); font-size: .72rem; font-weight: 500; color: var(--muted); letter-spacing: .05em; text-transform: uppercase; }
+.will td:first-child { font-family: var(--f-mono); font-size: .8rem; color: var(--marigold); white-space: nowrap; }
+.tbl { overflow-x: auto; }
+.legal { font-size: .8rem; color: var(--muted); }
+@media (max-width: 860px) { .split { grid-template-columns: 1fr; } }
+
+/* ---------- pricing ---------- */
+.pricing { background: var(--surface); border-block: 1px solid var(--line); }
+.plans { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; align-items: stretch; }
+.plan { border: 1px solid var(--line); border-radius: 18px; padding: 28px; display: grid; gap: 16px; grid-template-rows: auto auto auto 1fr auto; background: var(--paper); min-width: 0; }
+.plan.pick { border-color: var(--marigold); background: var(--surface); box-shadow: 0 0 0 1px var(--marigold); }
+.plan-name { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-weight: 600; font-size: var(--s1); }
+.price { font-family: var(--f-mono); font-size: 2.2rem; font-weight: 500; line-height: 1; font-variant-numeric: tabular-nums; }
+.price small { font-size: .85rem; color: var(--muted); font-family: var(--f-body); font-weight: 400; margin-left: 4px; }
+.plan > p { color: var(--muted); font-size: .92rem; }
+.plan ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: .92rem; align-content: start; }
+.plan li::before { content: "✓"; color: var(--jade); margin-right: 8px; }
+.plan li.no { color: var(--muted); }
+.plan li.no::before { content: "–"; color: var(--muted); }
+@media (max-width: 860px) { .plans { grid-template-columns: 1fr; } }
+
+.b2b { margin-top: 20px; border-radius: 18px; background: var(--night); color: var(--night-ink); padding: clamp(24px, 4vw, 40px); display: grid; grid-template-columns: 1.1fr .9fr; gap: 28px; align-items: center; }
+.b2b p { color: var(--night-muted); }
+.b2b ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 12px; }
+.b2b li { display: grid; grid-template-columns: 26px 1fr; gap: 8px; font-size: .93rem; }
+.b2b li span { font-family: var(--f-mono); color: var(--marigold); font-size: .8rem; padding-top: 2px; }
+.b2b .btn-primary { background: var(--marigold); color: var(--night); justify-self: start; }
+.b2b .btn-primary:hover { background: var(--night-ink); }
+@media (max-width: 860px) { .b2b { grid-template-columns: 1fr; } }
+
+/* ---------- trust ---------- */
+.trust { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 28px; }
+.trust div { display: grid; gap: 6px; align-content: start; }
+.trust b { font-family: var(--f-display); font-size: var(--s1); font-weight: 600; }
+.trust p { color: var(--muted); font-size: .92rem; }
+@media (max-width: 860px) { .trust { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 480px) { .trust { grid-template-columns: 1fr; } }
+
+/* ---------- faq ---------- */
+.faq { max-width: 800px; }
+.faq details { border-bottom: 1px solid var(--line); }
+.faq summary { cursor: pointer; list-style: none; padding: 20px 36px 20px 0; font-weight: 500; font-size: var(--s1); position: relative; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; position: absolute; right: 4px; top: 16px; font-family: var(--f-mono); font-size: 1.4rem; color: var(--marigold); transition: transform .2s; }
+.faq details[open] summary::after { transform: rotate(45deg); }
+.faq details p { padding-bottom: 22px; color: var(--muted); max-width: 65ch; }
+
+/* ---------- final ---------- */
+.final { text-align: left; }
+.final .wrap { display: grid; grid-template-columns: 1fr auto; gap: 28px; align-items: end; border-top: 1px solid var(--line); padding-top: clamp(40px, 6vw, 72px); }
+.final h2 { font-weight: 400; max-width: 18ch; }
+.final h2 em { color: var(--marigold); }
+.signup { display: flex; gap: 10px; flex-wrap: wrap; }
+.signup input { font: 400 var(--s0) var(--f-body); padding: 13px 18px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); min-width: 0; flex: 1 1 220px; }
+.signup-msg { font-size: .85rem; color: var(--jade); min-height: 1.4em; margin-top: 8px; }
+@media (max-width: 760px) { .final .wrap { grid-template-columns: 1fr; } }
+
+footer { padding-block: 40px; color: var(--muted); font-size: .85rem; }
+footer .wrap { display: flex; flex-wrap: wrap; gap: 12px 28px; justify-content: space-between; border-top: 1px solid var(--line); padding-top: 28px; }
+footer nav { display: flex; gap: 20px; flex-wrap: wrap; }
+footer a { text-decoration: none; }
+footer a:hover { color: var(--ink); }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="ส่งต่อ หน้าแรก">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <circle cx="16" cy="16" r="15" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M9 18c3-6 11-6 14 0" fill="none" stroke="var(--marigold)" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="16" cy="11" r="2.4" fill="var(--marigold)"/>
+        <path d="M11 22h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <span class="brand-name">ส่งต่อ<small>SONGTOR</small></span>
+    </a>
+    <nav class="nav-links" aria-label="เมนูหลัก">
+      <a href="#features">ฟีเจอร์</a>
+      <a href="#family">สำหรับครอบครัว</a>
+      <a href="#pricing">ราคา</a>
+      <a href="#b2b">สำหรับบริษัทประกัน</a>
+      <a href="#faq">คำถามที่พบบ่อย</a>
+    </nav>
+    <a class="btn btn-primary" href="#start">เริ่มใช้ฟรี</a>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- ================= HERO ================= -->
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-copy">
+      <span class="eyebrow">ตู้เซฟดิจิทัล · จดหมายถึงคนที่รัก · ผู้ส่งมอบคำสั่งเสีย</span>
+      <h1>สิ่งที่คุณรัก<br>ส่งถึง<em>คนที่คุณรัก</em><br>แม้ในวันที่คุณไม่อยู่</h1>
+      <p class="lede">รหัสผ่าน คริปโต จดหมาย คลิปวิดีโอ และรายการบัญชีที่ต้องปิด เก็บไว้ในที่เดียวแบบเข้ารหัสที่เราเองก็เปิดไม่ได้ ระบบจะทักคุณทุก 3 หรือ 6 เดือน ตราบใดที่คุณยังตอบ ทุกอย่างยังเป็นความลับ</p>
+      <div class="hero-ctas">
+        <a class="btn btn-primary" href="#start">สร้างตู้เซฟของฉัน</a>
+        <a class="btn btn-ghost" href="#how">ดูว่าระบบทำงานอย่างไร</a>
+      </div>
+      <div class="hero-note"><span>ใช้ฟรีตลอด ไม่ต้องใส่บัตร</span><span>ยืนยันตัวตนผ่าน LINE ได้</span><span>เก็บข้อมูลตาม PDPA</span></div>
+    </div>
+
+    <!-- live dead-man's switch demo -->
+    <div class="pulse" id="how" aria-label="ตัวอย่างระบบตรวจสอบสถานะ">
+      <div class="pulse-top">
+        <span class="who">การตรวจสอบสถานะของคุณ</span>
+        <span class="chip" id="pulseChip">ปกติ · ยังอยู่ดี</span>
+      </div>
+      <div class="pulse-body">
+        <div class="ring">
+          <svg viewBox="0 0 120 120" aria-hidden="true">
+            <circle class="track" cx="60" cy="60" r="52"/>
+            <circle class="meter" id="ringMeter" cx="60" cy="60" r="52" stroke-dasharray="326.7" stroke-dashoffset="0"/>
+          </svg>
+          <div class="ring-label"><b id="daysLeft">67</b><span>วันก่อนถามครั้งถัดไป</span></div>
+        </div>
+        <dl class="pulse-meta">
+          <div><dt>ยืนยันล่าสุด</dt><dd id="lastCheck">23 วันก่อน</dd></div>
+          <div><dt>ช่องทาง</dt><dd>LINE · SMS · อีเมล</dd></div>
+          <div><dt>รอบการถาม</dt><dd>
+            <span class="seg" role="group" aria-label="รอบการถาม">
+              <button type="button" id="int90" aria-pressed="true" data-days="90">3 เดือน</button>
+              <button type="button" id="int180" aria-pressed="false" data-days="180">6 เดือน</button>
+            </span>
+          </dd></div>
+        </dl>
+      </div>
+      <div class="pulse-actions">
+        <button type="button" class="btn btn-alive" id="aliveBtn">ฉันยังอยู่ดี</button>
+        <button type="button" class="btn btn-ghost" id="simBtn">จำลองกรณีไม่ตอบ</button>
+      </div>
+      <div>
+        <div class="ladder-cap">ถ้าไม่มีการตอบกลับ ระบบจะทำตามลำดับนี้</div>
+        <ol class="ladder" id="ladder">
+          <li><span class="d">วัน 0</span><span class="dot"></span><span>แจ้งเตือนในแอปและ LINE ให้กดยืนยัน</span></li>
+          <li><span class="d">+3 วัน</span><span class="dot"></span><span>ส่ง SMS และอีเมลซ้ำ</span></li>
+          <li><span class="d">+7 วัน</span><span class="dot"></span><span>เจ้าหน้าที่โทรหาคุณโดยตรง</span></li>
+          <li><span class="d">+14 วัน</span><span class="dot"></span><span>ถามผู้ติดต่อที่ไว้ใจ ต้องยืนยันตรงกัน 2 ใน 3 คน หรือแนบใบมรณบัตร</span></li>
+          <li class="last"><span class="d">+30 วัน</span><span class="dot"></span><span>ปลดล็อกตู้เซฟและส่งมอบให้ทายาทตามที่คุณกำหนด</span></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FOOTPRINT CALCULATOR ================= -->
+<section class="footprint">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">ลองนับดู</span>
+      <h2>ชีวิตดิจิทัลของคุณมีบัญชีที่ครอบครัวไม่รู้อยู่กี่อัน</h2>
+      <p class="lede">เลือกบริการที่คุณใช้อยู่ แล้วดูว่าถ้าไม่มีใครรู้รหัสหรือรู้ว่าต้องยกเลิก เงินจะถูกตัดไปเท่าไรในหนึ่งปี เราเรียกค่าใช้จ่ายนี้ว่า “หนี้ซอมบี้”</p>
+    </div>
+    <div class="fp-grid">
+      <div class="fp-list" id="fpList"></div>
+      <aside class="fp-out" aria-live="polite">
+        <span class="k">ถูกตัดเงินต่อเนื่องใน 12 เดือน</span>
+        <span class="big" id="fpYear">฿0</span>
+        <div class="row"><span>ค่าบริการรายเดือนรวม</span><b id="fpMonth">฿0</b></div>
+        <div class="row"><span>บัญชีที่ต้องส่งมอบหรือปิด</span><b id="fpCount">0 บัญชี</b></div>
+        <div class="row"><span>มีทรัพย์สินที่ไม่มีรหัสสำรองไม่ได้</span><b id="fpCrypto">ไม่มี</b></div>
+        <small>ราคาโดยประมาณของแพ็กเกจยอดนิยมในไทย ปี 2569 ใช้เพื่อให้เห็นภาพเท่านั้น</small>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CORE FEATURES ================= -->
+<section class="features" id="features">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">สี่อย่างที่ส่งต่อทำให้</span>
+      <h2>เก็บอย่างปลอดภัย ส่งมอบอย่างถูกคน</h2>
+    </div>
+
+    <!-- vault -->
+    <article class="feat">
+      <div class="feat-copy">
+        <span class="feat-tag">ZERO-KNOWLEDGE VAULT</span>
+        <h3>ตู้เซฟที่แม้แต่เราก็เปิดไม่ได้</h3>
+        <p class="lede">ข้อมูลถูกเข้ารหัสบนเครื่องของคุณก่อนส่งขึ้นเซิร์ฟเวอร์ กุญแจถูกแบ่งเป็น 3 ชิ้น ต้องใช้ 2 ชิ้นขึ้นไปจึงจะเปิดได้ เราถือไว้เพียงชิ้นเดียว</p>
+        <ul>
+          <li>Seed Phrase และ Private Key ของกระเป๋าคริปโต</li>
+          <li>รหัสโทรศัพท์ อีเมลหลัก และ Social Media</li>
+          <li>เอกสารสำคัญ เช่น กรมธรรม์ โฉนด สมุดบัญชี</li>
+          <li>เลือกได้ว่าทายาทแต่ละคนเห็นรายการไหนบ้าง</li>
+        </ul>
+      </div>
+      <div class="vault" aria-label="แผนภาพการเข้ารหัส">
+        <div class="vault-row">
+          <div class="vault-box"><span class="t">บนเครื่องคุณ</span><br>abandon ability able about above absent…</div>
+          <span class="arrow">AES-256 →</span>
+          <div class="vault-box"><span class="t">บนเซิร์ฟเวอร์เรา</span><div class="cipher">9f2c·e81a·0b77·d4c3·51fe·a0…</div></div>
+        </div>
+        <div class="shards">
+          <div class="shard"><b>ชิ้นที่ 1</b>คุณ</div>
+          <div class="shard"><b>ชิ้นที่ 2</b>ทายาทหลัก</div>
+          <div class="shard lock"><b>ชิ้นที่ 3</b>ส่งต่อ (ปลดเมื่อยืนยันแล้ว)</div>
+        </div>
+        <p class="vault-foot">2 ใน 3 ชิ้นเปิดตู้ได้ ชิ้นของเราชิ้นเดียวเปิดอะไรไม่ได้ และจะปล่อยให้ทายาทเมื่อขั้นยืนยันการเสียชีวิตผ่านครบเท่านั้น</p>
+      </div>
+    </article>
+
+    <!-- time capsule -->
+    <article class="feat">
+      <div class="feat-copy">
+        <span class="feat-tag">TIME CAPSULE</span>
+        <h3>จดหมาย เสียง และวิดีโอ ถึงคนสำคัญ</h3>
+        <p class="lede">เขียนถึงแม่ อัดคลิปให้ลูก หรือฝากคำขอบคุณถึงเพื่อนสนิท เลือกได้ว่าจะให้ไปถึงเมื่อไร ไม่จำเป็นต้องเป็นวันที่คุณจากไปเสมอ</p>
+        <ul>
+          <li>ส่งในวันสำคัญของเขา เช่น วันรับปริญญา หรือวันแต่งงาน</li>
+          <li>แนบความต้องการเรื่องงานศพ วัดที่อยากให้สวด และการบริจาคร่างกาย</li>
+          <li>แก้ไขได้ตลอด ผู้รับไม่รู้จนกว่าจะถึงเวลา</li>
+        </ul>
+      </div>
+      <div class="letter">
+        <div class="letter-meta"><span class="chip warn">ถึง: แม่</span><span class="chip">แนบคลิป 2:14 นาที</span></div>
+        <p class="letter-body">แม่ครับ ถ้าแม่ได้อ่านจดหมายนี้ แปลว่าผมไม่ได้อยู่บอกเองแล้ว ขอบคุณที่ตื่นมาทำข้าวให้ผมทุกเช้าตลอดสิบแปดปี รหัสตู้เซฟอยู่กับพี่นัท ส่วนแมวสองตัว ฝากให้น้องเฟิร์นดูแลนะครับ</p>
+        <p class="letter-sign">รักแม่ที่สุด<br>— ต้น</p>
+        <div class="cond" role="group" aria-label="เงื่อนไขการส่ง">
+          <button type="button" id="condRelease" aria-pressed="true" data-note="ส่งทันทีเมื่อขั้นตอนยืนยันการเสียชีวิตเสร็จสมบูรณ์"><b>เมื่อส่งมอบ</b>หลังยืนยันแล้ว</button>
+          <button type="button" id="condDate" aria-pressed="false" data-note="ส่งในวันที่ 12 สิงหาคม ของปีแรกหลังจากนั้น ตรงกับวันแม่"><b>วันที่กำหนด</b>12 ส.ค. วันแม่</button>
+          <button type="button" id="condMilestone" aria-pressed="false" data-note="ทายาทกดยืนยันเหตุการณ์ เช่น ลูกเรียนจบ แล้วระบบจึงส่งจดหมาย"><b>เหตุการณ์ชีวิต</b>เมื่อลูกเรียนจบ</button>
+        </div>
+        <p class="cond-note" id="condNote">ส่งทันทีเมื่อขั้นตอนยืนยันการเสียชีวิตเสร็จสมบูรณ์</p>
+      </div>
+    </article>
+
+    <!-- canceller -->
+    <article class="feat">
+      <div class="feat-copy">
+        <span class="feat-tag">SUBSCRIPTION CANCELLER</span>
+        <h3>ปิดบัญชีรายเดือน และหยุดหนี้ซอมบี้ให้ในคราวเดียว</h3>
+        <p class="lede">เมื่อทายาทอัปโหลดใบมรณบัตรและหนังสือมอบอำนาจ ระบบจะยื่นคำขอยกเลิกบริการ เปลี่ยนบัญชีโซเชียลเป็นบัญชีระลึกถึง และติดตามจนเสร็จ ทายาทเห็นสถานะทุกรายการในหน้าเดียว</p>
+        <ul>
+          <li>ยกเลิกสตรีมมิง คลาวด์ ฟิตเนส และค่าบริการที่ตัดผ่านบัตร</li>
+          <li>เปลี่ยน Facebook และ Instagram เป็นบัญชีระลึกถึง กันถูกแฮ็ก</li>
+          <li>ทำหนังสือแจ้งธนาคารและบริษัทบัตรเครดิตให้อัตโนมัติ</li>
+        </ul>
+      </div>
+      <div class="cancel" aria-label="ตัวอย่างสถานะการปิดบัญชี">
+        <div class="cancel-row"><div>Netflix Premium<div class="sub">ตัดผ่านบัตร ···· 4821</div></div><span class="st done">ยกเลิกแล้ว</span></div>
+        <div class="cancel-row"><div>Facebook<div class="sub">ผู้ติดต่อดูแลบัญชี: พี่นัท</div></div><span class="st mem">บัญชีระลึกถึง</span></div>
+        <div class="cancel-row"><div>ฟิตเนสใกล้บ้าน<div class="sub">สัญญา 12 เดือน เหลือ 5 เดือน</div></div><span class="st wait">รอเอกสารตอบกลับ</span></div>
+        <div class="cancel-row"><div>Google One 2TB<div class="sub">รูปถ่ายส่งต่อให้น้องเฟิร์นแล้ว</div></div><span class="st done">ปิดแล้ว</span></div>
+        <div class="cancel-row"><div>บัตรเครดิตธนาคาร<div class="sub">ส่งหนังสือแจ้งการเสียชีวิต</div></div><span class="st wait">ยื่นแล้ว 2 วัน</span></div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ================= MORE IDEAS ================= -->
+<section class="night">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">ฟีเจอร์ที่คิดเพิ่มสำหรับคนไทย</span>
+      <h2>สิ่งที่ครอบครัวมักต้องตามหา หลังวันนั้น</h2>
+      <p class="lede">จากปัญหาจริงที่ทายาทเจอ ตั้งแต่หาไม่เจอว่ามีบัญชีธนาคารที่ไหน ไปจนถึงไม่รู้ว่าใครจะเลี้ยงแมวต่อ</p>
+    </div>
+    <div class="ideas">
+      <div class="idea"><span class="k">แผนที่ทรัพย์สิน</span><h3>รายการบัญชีทั้งหมดในที่เดียว</h3><p>บันทึกว่ามีบัญชีธนาคาร กองทุน ประกัน หุ้น และกองทุนสำรองเลี้ยงชีพที่ไหน โดยไม่ต้องใส่ยอดเงิน ทายาทจะไม่พลาดเงินที่ไม่มีใครมาเคลม</p></div>
+      <div class="idea"><span class="k">ผู้จัดการมรดกดิจิทัล</span><h3>แบ่งสิทธิ์ให้ทายาทแต่ละคน</h3><p>ให้พี่ดูแลเรื่องคริปโต ให้น้องดูแลรูปถ่าย ให้เพื่อนสนิทปิดโซเชียล แต่ละคนเห็นเฉพาะส่วนที่ได้รับมอบหมาย</p></div>
+      <div class="idea"><span class="k">ความต้องการงานศพ</span><h3>บอกไว้ก่อน ครอบครัวไม่ต้องเดา</h3><p>ศาสนาและวัดที่ต้องการ สวดกี่คืน ลอยอังคารหรือเก็บอัฐิ เพลงที่อยากให้เปิด และความประสงค์บริจาคอวัยวะหรือร่างกาย</p></div>
+      <div class="idea"><span class="k">ผู้ดูแลสัตว์เลี้ยง</span><h3>ใครจะดูแลน้องหมาน้องแมว</h3><p>ระบุผู้รับเลี้ยง ข้อมูลอาหาร ยา คลินิกประจำ และงบที่ฝากไว้ ระบบจะแจ้งผู้รับเลี้ยงเป็นคนแรกเพราะสัตว์รอไม่ได้</p></div>
+      <div class="idea"><span class="k">โหมดเดินทาง</span><h3>หยุดการถามชั่วคราว</h3><p>ไปบวช ไปเดินป่า หรือไปทำงานต่างประเทศ ตั้งพักการตรวจสอบได้สูงสุด 90 วัน ไม่ต้องกลัวระบบส่งมอบผิดเวลา</p></div>
+      <div class="idea"><span class="k">ผู้ช่วยสำหรับทายาท</span><h3>คู่มือทีละขั้นหลังการสูญเสีย</h3><p>เช็กลิสต์ตามกฎหมายไทย ตั้งแต่แจ้งตายจนถึงยื่นศาลตั้งผู้จัดการมรดก พร้อมแบบฟอร์มที่กรอกข้อมูลให้แล้ว</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FOR FAMILY: checklist + will ================= -->
+<section id="family">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">สำหรับครอบครัวที่อยู่ข้างหลัง</span>
+      <h2>เมื่อถึงวันนั้น ทายาทรู้ว่าต้องทำอะไรก่อนหลัง</h2>
+      <p class="lede">ส่งต่อส่งเช็กลิสต์นี้ให้ทายาทพร้อมตู้เซฟ ขั้นตอนเรียงตามระยะเวลาจริงที่กฎหมายไทยกำหนด</p>
+    </div>
+    <div class="steps">
+      <div class="step"><span class="when">ภายใน 24 ชั่วโมง</span><h3>แจ้งการตาย</h3><p>แจ้งที่สำนักงานเขตหรืออำเภอ เพื่อรับใบมรณบัตร ถ้าเสียชีวิตที่โรงพยาบาลให้ใช้หนังสือรับรองการตายจากแพทย์</p></div>
+      <div class="step"><span class="when">สัปดาห์แรก</span><h3>เปิดตู้เซฟและแจ้งคนสำคัญ</h3><p>อัปโหลดใบมรณบัตร ระบบส่งจดหมายและข้อมูลให้ทายาท พร้อมแจ้งผู้รับเลี้ยงสัตว์และผู้ติดต่อที่ระบุไว้</p></div>
+      <div class="step"><span class="when">ภายใน 1 เดือน</span><h3>หยุดค่าใช้จ่ายและเคลมประกัน</h3><p>ระบบยกเลิกบริการรายเดือน ทายาทยื่นเคลมประกันชีวิตด้วยข้อมูลกรมธรรม์จากแผนที่ทรัพย์สิน</p></div>
+      <div class="step"><span class="when">1–6 เดือน</span><h3>ตั้งผู้จัดการมรดก</h3><p>ยื่นคำร้องต่อศาลเพื่อจัดการบัญชีธนาคารและทรัพย์สินที่มีชื่อผู้ตาย โดยใช้พินัยกรรมกระดาษที่ทำไว้</p></div>
+    </div>
+
+    <div class="split">
+      <div class="feat-copy">
+        <span class="eyebrow">ร่างพินัยกรรมกระดาษ</span>
+        <h3>ระบบเป็นผู้ส่งมอบ ส่วนกระดาษมีผลตามกฎหมาย</h3>
+        <p class="lede">ตามประมวลกฎหมายแพ่งและพาณิชย์ พินัยกรรมที่มีผลต้องอยู่ในรูปแบบที่กฎหมายกำหนด ส่งต่อจึงช่วยร่างตามแบบที่ถูกต้อง ให้คุณพิมพ์ ลงชื่อ และเก็บไว้ จากนั้นถ่ายรูปเก็บในตู้เซฟเพื่อให้ทายาทรู้ว่าต้นฉบับอยู่ที่ไหน</p>
+        <ul>
+          <li>ตอบคำถามสั้นๆ ระบบเรียงข้อความเป็นภาษากฎหมายให้</li>
+          <li>เช็กลิสต์พยานและวันที่ เพื่อลดโอกาสพินัยกรรมเป็นโมฆะ</li>
+          <li>ส่งต่อให้ทนายความพันธมิตรตรวจทานได้ มีค่าบริการเพิ่ม</li>
+        </ul>
+      </div>
+      <div class="will">
+        <div class="tbl">
+          <table>
+            <thead><tr><th>มาตรา</th><th>แบบพินัยกรรม</th><th>สิ่งที่ต้องมี</th></tr></thead>
+            <tbody>
+              <tr><td>ม.1656</td><td>แบบธรรมดา</td><td>ทำเป็นหนังสือ ลงวันที่ ลงชื่อผู้ทำต่อหน้าพยาน 2 คนพร้อมกัน และพยานลงชื่อ</td></tr>
+              <tr><td>ม.1657</td><td>แบบเขียนเองทั้งฉบับ</td><td>เขียนด้วยลายมือตนเองทั้งฉบับ ลงวันที่และลงชื่อ ไม่ต้องมีพยาน พิมพ์ไม่ได้</td></tr>
+              <tr><td>ม.1658</td><td>แบบเอกสารฝ่ายเมือง</td><td>แจ้งข้อความต่อนายอำเภอหรือผู้อำนวยการเขต ต่อหน้าพยาน 2 คน</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="legal">ข้อมูลนี้เป็นคำอธิบายทั่วไป ไม่ใช่คำปรึกษาทางกฎหมาย ควรปรึกษาทนายความสำหรับกรณีที่มีทรัพย์สินซับซ้อน</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PRICING ================= -->
+<section class="pricing" id="pricing">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">ราคา</span>
+      <h2>เริ่มฟรี หรือจ่ายครั้งเดียวแล้วจบ</h2>
+      <p class="lede">เรื่องนี้ไม่ควรมีบิลมาเตือนทุกเดือน แพ็กเกจตลอดชีพจึงเป็นตัวเลือกที่สมาชิกส่วนใหญ่เลือก</p>
+    </div>
+    <div class="plans">
+      <div class="plan">
+        <div class="plan-name">เริ่มต้น</div>
+        <div class="price">฿0</div>
+        <p>สำหรับเริ่มจดสิ่งที่สำคัญที่สุดก่อน</p>
+        <ul>
+          <li>จดหมายข้อความ 3 ฉบับ</li>
+          <li>เก็บรหัสผ่าน 3 บัญชี</li>
+          <li>ทายาท 1 คน</li>
+          <li>ตรวจสอบสถานะทุก 6 เดือน</li>
+          <li class="no">Seed Phrase คริปโต</li>
+          <li class="no">วิดีโอและไฟล์เสียง</li>
+        </ul>
+        <a class="btn btn-ghost" href="#start">เริ่มใช้ฟรี</a>
+      </div>
+      <div class="plan">
+        <div class="plan-name">พลัส</div>
+        <div class="price">฿990<small>/ ปี</small></div>
+        <p>สำหรับคนที่มีชีวิตดิจิทัลเต็มรูปแบบ</p>
+        <ul>
+          <li>จดหมายและรหัสผ่านไม่จำกัด</li>
+          <li>Seed Phrase และเอกสารสำคัญ</li>
+          <li>วิดีโอ Full HD รวม 20 GB</li>
+          <li>ทายาทสูงสุด 5 คน แยกสิทธิ์ได้</li>
+          <li>ปิดบัญชีรายเดือนอัตโนมัติ</li>
+          <li>ร่างพินัยกรรมกระดาษ</li>
+        </ul>
+        <a class="btn btn-ghost" href="#start">ทดลองใช้ 30 วัน</a>
+      </div>
+      <div class="plan pick">
+        <div class="plan-name">ตลอดชีพ <span class="chip warn">ยอดนิยม</span></div>
+        <div class="price">฿5,900<small>ครั้งเดียว</small></div>
+        <p>ทุกอย่างในพลัส จ่ายครั้งเดียว ไม่มีวันหมดอายุ</p>
+        <ul>
+          <li>ทุกฟีเจอร์ในแพ็กเกจพลัส</li>
+          <li>วิดีโอ 4K รวม 100 GB</li>
+          <li>ทายาทไม่จำกัด</li>
+          <li>ทนายพันธมิตรตรวจร่างพินัยกรรม 1 ครั้ง</li>
+          <li>ผู้ช่วยดูแลทายาทแบบมีเจ้าหน้าที่</li>
+          <li>รับประกันการส่งออกข้อมูลแม้บริษัทเลิกกิจการ</li>
+        </ul>
+        <a class="btn btn-primary" href="#start">ซื้อแพ็กเกจตลอดชีพ</a>
+      </div>
+    </div>
+
+    <div class="b2b" id="b2b">
+      <div class="feat-copy">
+        <span class="eyebrow">สำหรับบริษัทประกันชีวิตและธนาคาร</span>
+        <h3>บริการเสริมระดับพรีเมียม ใส่ชื่อแบรนด์ของคุณได้</h3>
+        <p>มอบส่งต่อให้ลูกค้ากรมธรรม์สะสมทรัพย์และประกันมรดก บริษัทจ่ายค่าไลเซนส์ต่อกรมธรรม์ ลูกค้าใช้ฟรีภายใต้แบรนด์ของคุณ</p>
+        <a class="btn btn-primary" href="#start">นัดคุยกับทีมพันธมิตร</a>
+      </div>
+      <ul>
+        <li><span>01</span><div><b>ทายาทรู้ว่ามีกรมธรรม์</b><br>ข้อมูลกรมธรรม์อยู่ในแผนที่ทรัพย์สิน ลดกรมธรรม์ที่ไม่มีใครมาเคลม</div></li>
+        <li><span>02</span><div><b>เคลมเร็วขึ้น</b><br>ใบมรณบัตรที่ยืนยันแล้วส่งตรงถึงฝ่ายสินไหมผ่าน API</div></li>
+        <li><span>03</span><div><b>ลูกค้าต่ออายุกรมธรรม์มากขึ้น</b><br>บริการที่ผูกกับครอบครัว ทำให้ลูกค้าไม่อยากย้ายออก</div></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TRUST ================= -->
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">ความปลอดภัย</span>
+      <h2>สร้างมาให้ไว้ใจได้ แม้คุณจะไม่ไว้ใจเรา</h2>
+    </div>
+    <div class="trust">
+      <div><b>เข้ารหัสฝั่งผู้ใช้</b><p>เข้ารหัสด้วย AES-256 บนเครื่องคุณ เซิร์ฟเวอร์เก็บได้แค่ข้อมูลที่อ่านไม่ออก</p></div>
+      <div><b>กันการส่งมอบผิดพลาด</b><p>ต้องผ่านการถามหลายช่องทาง และผู้ติดต่อ 2 ใน 3 คนยืนยัน หรือมีใบมรณบัตรที่ตรวจสอบแล้ว</p></div>
+      <div><b>ข้อมูลอยู่ในไทย</b><p>เซิร์ฟเวอร์ตั้งในประเทศไทย ปฏิบัติตาม พ.ร.บ.คุ้มครองข้อมูลส่วนบุคคล</p></div>
+      <div><b>ถ้าเราปิดตัว</b><p>ข้อมูลที่เข้ารหัสฝากไว้กับผู้ดูแลอิสระ และส่งออกให้ทายาทตามกำหนดเดิม</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FAQ ================= -->
+<section id="faq" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head"><span class="eyebrow">คำถามที่พบบ่อย</span><h2>ก่อนตัดสินใจ</h2></div>
+    <div class="faq">
+      <details open>
+        <summary>ถ้าฉันลืมกดยืนยันตอนไปเที่ยว ข้อมูลจะถูกส่งเลยไหม</summary>
+        <p>ไม่ ระบบจะถามซ้ำหลายช่องทางเป็นเวลาอย่างน้อย 30 วัน และต้องมีผู้ติดต่อที่ไว้ใจยืนยันตรงกัน 2 ใน 3 คนก่อนส่งมอบ ถ้ารู้ล่วงหน้าว่าจะติดต่อไม่ได้ ให้เปิดโหมดเดินทางไว้</p>
+      </details>
+      <details>
+        <summary>ส่งต่ออ่านรหัสผ่านหรือ Seed Phrase ของฉันได้ไหม</summary>
+        <p>ไม่ได้ ข้อมูลถูกเข้ารหัสบนเครื่องของคุณ เราถือกุญแจเพียง 1 ใน 3 ชิ้น ซึ่งเปิดอะไรไม่ได้ด้วยตัวเอง พนักงานหรือผู้ที่เจาะระบบเราก็อ่านไม่ได้เช่นกัน</p>
+      </details>
+      <details>
+        <summary>พินัยกรรมที่สร้างในแอปมีผลทางกฎหมายไหม</summary>
+        <p>ร่างที่ระบบสร้างจะมีผลเมื่อคุณพิมพ์ออกมาและลงชื่อพร้อมพยานตามแบบที่กฎหมายกำหนด ส่วนจดหมาย รหัสผ่าน และคำสั่งเสียในตู้เซฟเป็นการส่งมอบข้อมูล ไม่ใช่พินัยกรรม</p>
+      </details>
+      <details>
+        <summary>ฉันอายุยังน้อย จำเป็นต้องทำไหม</summary>
+        <p>อุบัติเหตุไม่ได้เลือกอายุ ถ้าคุณมีคริปโต มีบัญชีที่ตัดเงินรายเดือน หรืออยู่คนเดียว ครอบครัวจะเข้าถึงสิ่งเหล่านี้ได้ยากมากหากไม่มีการเตรียมไว้ การใช้เวลา 15 นาทีวันนี้ช่วยให้พวกเขาไม่ต้องตามหาเป็นปี</p>
+      </details>
+      <details>
+        <summary>ถ้าส่งต่อเลิกกิจการ ข้อมูลของฉันจะเป็นอย่างไร</summary>
+        <p>ข้อมูลที่เข้ารหัสจะถูกโอนไปยังผู้ดูแลอิสระตามสัญญา และระบบตรวจสอบสถานะพื้นฐานยังทำงานต่อ คุณดาวน์โหลดสำเนาที่เข้ารหัสไว้เองได้ทุกเมื่อ</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FINAL CTA ================= -->
+<section class="final" id="start">
+  <div class="wrap">
+    <h2>ใช้เวลา 15 นาที<br>ให้คนที่คุณรัก<em>ไม่ต้องตามหา</em></h2>
+    <div>
+      <form class="signup" id="signupForm" novalidate>
+        <label for="email" class="sr" hidden>อีเมล</label>
+        <input id="email" type="email" placeholder="อีเมลของคุณ" autocomplete="email" required>
+        <button class="btn btn-primary" type="submit">เริ่มใช้ฟรี</button>
+      </form>
+      <p class="signup-msg" id="signupMsg" role="status"></p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2569 ส่งต่อ · Songtor</span>
+    <nav aria-label="ลิงก์ท้ายหน้า">
+      <a href="#features">ฟีเจอร์</a><a href="#pricing">ราคา</a><a href="#b2b">พันธมิตร</a><a href="#faq">คำถามที่พบบ่อย</a>
+    </nav>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const toast = (msg) => {
+    const t = $('toast'); t.textContent = msg; t.classList.add('show');
+    clearTimeout(toast._h); toast._h = setTimeout(() => t.classList.remove('show'), 2600);
+  };
+
+  /* ---------- dead-man's switch demo ---------- */
+  const C = 2 * Math.PI * 52;
+  let interval = 90, elapsed = 23, simTimer = null;
+  const ladder = Array.from($('ladder').children);
+  const chip = $('pulseChip');
+
+  function render() {
+    const left = Math.max(0, interval - elapsed);
+    $('daysLeft').textContent = left;
+    $('lastCheck').textContent = elapsed === 0 ? 'วันนี้' : elapsed + ' วันก่อน';
+    $('ringMeter').style.strokeDashoffset = C * (1 - left / interval);
+  }
+  function resetLadder() {
+    ladder.forEach((li) => li.classList.remove('on'));
+    $('ringMeter').style.stroke = '';
+    chip.className = 'chip'; chip.textContent = 'ปกติ · ยังอยู่ดี';
+  }
+  function stopSim() { clearInterval(simTimer); simTimer = null; $('simBtn').textContent = 'จำลองกรณีไม่ตอบ'; }
+
+  document.querySelectorAll('.seg button').forEach((b) => b.addEventListener('click', () => {
+    document.querySelectorAll('.seg button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+    interval = Number(b.dataset.days); render();
+  }));
+
+  $('aliveBtn').addEventListener('click', () => {
+    stopSim(); resetLadder(); elapsed = 0; render();
+    toast('ยืนยันแล้ว ระบบจะถามอีกครั้งใน ' + interval + ' วัน');
+  });
+
+  $('simBtn').addEventListener('click', () => {
+    if (simTimer) { stopSim(); return; }
+    resetLadder(); elapsed = interval; render();
+    $('ringMeter').style.stroke = 'var(--marigold)';
+    $('simBtn').textContent = 'หยุดจำลอง';
+    let i = 0;
+    const step = () => {
+      if (i >= ladder.length) { stopSim(); return; }
+      ladder[i].classList.add('on');
+      const last = i === ladder.length - 1;
+      chip.className = 'chip ' + (last ? 'crit' : 'warn');
+      chip.textContent = last ? 'ส่งมอบให้ทายาท' : 'รอการตอบกลับ · ขั้นที่ ' + (i + 1);
+      if (last) $('ringMeter').style.stroke = 'var(--alert)';
+      i++;
+    };
+    step(); simTimer = setInterval(step, 1100);
+  });
+  render();
+
+  /* ---------- footprint calculator ---------- */
+  const services = [
+    { id: 'netflix', name: 'Netflix Premium', price: 419, on: true },
+    { id: 'youtube', name: 'YouTube Premium', price: 179, on: true },
+    { id: 'spotify', name: 'Spotify Premium', price: 139, on: false },
+    { id: 'icloud', name: 'iCloud+ 200GB', price: 99, on: true },
+    { id: 'gone', name: 'Google One 2TB', price: 350, on: false },
+    { id: 'ai', name: 'ผู้ช่วย AI แบบเสียเงิน', price: 690, on: false },
+    { id: 'gym', name: 'ฟิตเนสรายเดือน', price: 1590, on: true },
+    { id: 'phone', name: 'ค่าโทรศัพท์รายเดือน', price: 599, on: true },
+    { id: 'social', name: 'Facebook · IG · TikTok', price: 0, on: true },
+    { id: 'email', name: 'อีเมลหลัก (Gmail)', price: 0, on: true },
+    { id: 'bank', name: 'แอปธนาคาร 2 แห่ง', price: 0, on: true, n: 2 },
+    { id: 'crypto', name: 'กระเป๋าคริปโต / Exchange', price: 0, on: false, crypto: true },
+  ];
+  const fmt = (n) => '฿' + n.toLocaleString('th-TH');
+  const list = $('fpList');
+  services.forEach((s) => {
+    const d = document.createElement('div'); d.className = 'fp-item';
+    d.innerHTML = '<input type="checkbox" id="fp-' + s.id + '"' + (s.on ? ' checked' : '') + '>' +
+      '<label for="fp-' + s.id + '"><span>' + s.name + '</span><span class="p">' + (s.price ? fmt(s.price) + '/ด.' : (s.crypto ? 'ไม่มีรหัส = หาย' : 'ส่งมอบ')) + '</span></label>';
+    list.appendChild(d);
+  });
+  function calc() {
+    let m = 0, c = 0, crypto = false;
+    services.forEach((s) => {
+      if ($('fp-' + s.id).checked) { m += s.price; c += s.n || (s.id === 'social' ? 3 : 1); if (s.crypto) crypto = true; }
+    });
+    $('fpMonth').textContent = fmt(m);
+    $('fpYear').textContent = fmt(m * 12);
+    $('fpCount').textContent = c + ' บัญชี';
+    $('fpCrypto').textContent = crypto ? 'มี คริปโต' : 'ไม่มี';
+  }
+  list.addEventListener('change', calc); calc();
+
+  /* ---------- time capsule conditions ---------- */
+  document.querySelectorAll('.cond button').forEach((b) => b.addEventListener('click', () => {
+    document.querySelectorAll('.cond button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+    $('condNote').textContent = b.dataset.note;
+  }));
+
+  /* ---------- signup ---------- */
+  $('signupForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const v = $('email').value.trim();
+    const msg = $('signupMsg');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) {
+      msg.style.color = 'var(--alert)'; msg.textContent = 'กรุณาใส่อีเมลให้ถูกรูปแบบ เช่น name@example.com'; return;
+    }
+    msg.style.color = ''; msg.textContent = 'บันทึกแล้ว เราจะส่งลิงก์เริ่มต้นไปที่ ' + v + ' เมื่อเปิดให้บริการ';
+    $('email').value = '';
+  });
+})();
+</script>
+</body>
+</html>
