@@ -1,0 +1,711 @@
+<!doctype html>
+<html lang="th" data-lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lastly</title>
+<meta name="description" content="Lastly keeps your passwords, crypto keys, letters and final wishes, and hands them to the people you choose if one day you don't come home.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Sriracha&family=Taviraj:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+/* Layout: a personal notebook, not a product page. Ruled school-notebook paper with a red margin,
+   ballpoint-blue handwriting for the human voice, typeset text for the facts. One reading column
+   (~680px) that breaks out wider only for the note, the letter and the receipt. Light only, by choice.
+   Bilingual: every string exists as .th and .en; the root's data-lang shows one. */
+:root {
+  --paper: #FCFCFA;
+  --sheet: #FFFFFF;
+  --ink: #1D1D20;
+  --graphite: #66666C;
+  --rule: #CFDDEA;
+  --margin: #E07B6E;
+  --pen: #2348A6;
+  --hairline: #E3E3DF;
+  --receipt: #F3F3EF;
+  --chat: #EEF1F4;
+  --tape: rgba(238, 226, 160, .72);
+  --error: #B23A2B;
+
+  --f-display: "Taviraj", "Noto Serif Thai", Georgia, serif;
+  --f-body: "Sarabun", "Noto Sans Thai", system-ui, sans-serif;
+  --f-hand: "Sriracha", "Sarabun", cursive;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+
+  --line: 2.25rem;
+  color-scheme: light;
+}
+:root[data-lang="en"] .th, :root:not([data-lang="en"]) .en { display: none !important; }
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition: none !important; animation: none !important; } }
+body {
+  margin: 0; background: var(--paper); color: var(--ink);
+  font-family: var(--f-body); font-size: 1.075rem; line-height: 1.75; font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+}
+img, svg { max-width: 100%; }
+a { color: var(--pen); text-underline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--pen); outline-offset: 3px; }
+[hidden] { display: none !important; }
+p { margin: 0; }
+h1, h2, h3 { font-family: var(--f-display); font-weight: 500; line-height: 1.35; margin: 0; text-wrap: balance; }
+h2 { font-size: clamp(1.75rem, 3.6vw, 2.35rem); }
+h3 { font-size: 1.3rem; font-weight: 600; }
+
+.page { max-width: 1040px; margin-inline: auto; padding-inline: 20px; }
+.col { max-width: 680px; }
+.hand { font-family: var(--f-hand); color: var(--pen); font-weight: 400; }
+.muted { color: var(--graphite); }
+.block { padding-block: clamp(64px, 10vw, 120px); }
+.block + .block { border-top: 1px solid var(--hairline); }
+.stack { display: grid; gap: 18px; }
+
+.btn {
+  display: inline-block; font: 500 1rem/1 var(--f-body); padding: 15px 22px; border-radius: 6px;
+  background: var(--ink); color: var(--sheet); text-decoration: none; border: 1px solid var(--ink); cursor: pointer;
+}
+.btn:hover { background: var(--pen); border-color: var(--pen); }
+.btn.line { background: transparent; color: var(--ink); border-color: #BDBDB8; }
+.btn.line:hover { border-color: var(--ink); }
+
+/* ---------- top ---------- */
+.top { padding-block: 22px; }
+.top .page { display: flex; align-items: center; gap: 28px; flex-wrap: wrap; }
+.mark { font-family: var(--f-hand); font-size: 1.95rem; color: var(--pen); text-decoration: none; line-height: 1; position: relative; }
+.mark svg { position: absolute; left: -4px; bottom: -10px; width: calc(100% + 8px); height: 12px; overflow: visible; }
+.top nav { display: flex; gap: 24px; margin-left: auto; font-size: .98rem; flex-wrap: wrap; align-items: center; }
+.top nav a { color: var(--ink); text-decoration: none; }
+.top nav a:hover { color: var(--pen); text-decoration: underline; }
+.lang { display: inline-flex; border: 1px solid #BDBDB8; border-radius: 6px; overflow: hidden; }
+.lang button { font: 500 .82rem/1 var(--f-mono); padding: 7px 10px; background: transparent; border: 0; color: var(--graphite); cursor: pointer; letter-spacing: .04em; }
+.lang button[aria-pressed="true"] { background: var(--ink); color: var(--sheet); }
+@media (max-width: 640px) { .top nav a.opt { display: none; } }
+
+/* ---------- hero ---------- */
+.hero { padding-block: clamp(32px, 6vw, 72px) clamp(64px, 9vw, 112px); }
+.hero .page { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(36px, 6vw, 80px); align-items: start; }
+.hero-text { display: grid; gap: 26px; padding-top: clamp(0px, 3vw, 36px); min-width: 0; }
+.hero h1 { font-size: clamp(2.4rem, 5.4vw, 3.6rem); font-weight: 500; line-height: 1.2; letter-spacing: -.005em; }
+.hero h1 .soft { font-style: italic; font-weight: 400; }
+.hero-text > p { font-size: 1.15rem; max-width: 38ch; }
+.hero-cta { display: flex; gap: 12px 16px; flex-wrap: wrap; align-items: center; }
+.hero-cta .hand { font-size: 1.05rem; }
+@media (max-width: 860px) { .hero .page { grid-template-columns: 1fr; } }
+
+/* notebook sheet */
+.sheet {
+  position: relative; background-color: var(--sheet);
+  background-image: linear-gradient(transparent calc(var(--line) - 1px), var(--rule) calc(var(--line) - 1px));
+  background-size: 100% var(--line); background-position: 0 var(--line);
+  padding: var(--line) 22px var(--line) 70px;
+  box-shadow: 0 1px 2px rgba(0,0,0,.06), 0 14px 30px -18px rgba(30,30,40,.35);
+  min-width: 0;
+}
+.sheet::before { content: ""; position: absolute; top: 0; bottom: 0; left: 52px; width: 1.5px; background: var(--margin); opacity: .8; }
+.sheet .tape { position: absolute; top: -14px; left: 50%; width: 118px; height: 30px; background: var(--tape); transform: translateX(-50%) rotate(-3deg); }
+.note { transform: rotate(1.2deg); margin-top: 8px; }
+.note h2 { font-family: var(--f-hand); font-size: 1.55rem; line-height: var(--line); color: var(--pen); font-weight: 400; }
+.note ol { margin: 0; padding: 0; list-style: none; counter-reset: n; }
+.note li { font-family: var(--f-hand); color: var(--pen); font-size: 1.12rem; line-height: var(--line); position: relative; counter-increment: n; }
+.note li::before { content: counter(n) "."; position: absolute; left: -34px; width: 24px; text-align: right; color: var(--pen); }
+.note li s { text-decoration-thickness: 1.5px; opacity: .55; }
+.note .tick { color: var(--margin); margin-left: 6px; }
+.note .sig { text-align: right; font-family: var(--f-hand); color: var(--pen); line-height: var(--line); }
+.redact { background: var(--pen); color: transparent; border-radius: 2px; padding: 0 .2em; user-select: none; }
+@media (max-width: 420px) { .sheet { padding-left: 56px; } .sheet::before { left: 40px; } .note li::before { left: -30px; } }
+
+/* ---------- check-in chat ---------- */
+.split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(36px, 6vw, 80px); align-items: start; }
+@media (max-width: 860px) { .split { grid-template-columns: 1fr; } }
+.chat { background: var(--chat); border-radius: 22px; padding: 20px 16px; display: grid; gap: 10px; align-content: start; min-height: 360px; }
+.chat-head { display: flex; align-items: center; gap: 10px; padding: 0 4px 10px; border-bottom: 1px solid #DCE1E6; font-size: .92rem; }
+.chat-head .av { width: 34px; height: 34px; border-radius: 50%; background: var(--pen); color: var(--sheet); display: grid; place-content: center; font-family: var(--f-hand); font-size: 1.05rem; }
+.chat-head small { display: block; color: var(--graphite); font-size: .78rem; line-height: 1.2; }
+.bubble { max-width: 82%; padding: 10px 14px; border-radius: 18px; font-size: .98rem; line-height: 1.55; background: var(--sheet); justify-self: start; border-bottom-left-radius: 6px; animation: pop .25s ease; }
+.bubble.me { justify-self: end; background: var(--pen); color: var(--sheet); border-radius: 18px; border-bottom-right-radius: 6px; }
+.bubble time { display: block; font-size: .72rem; color: var(--graphite); margin-top: 2px; }
+.bubble.me time { color: rgba(255,255,255,.75); }
+@keyframes pop { from { transform: translateY(6px); opacity: .3; } to { transform: none; opacity: 1; } }
+.replies { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; margin-top: 4px; }
+.replies button { font: 500 .95rem var(--f-body); background: var(--sheet); color: var(--pen); border: 1px solid #C8D2E8; padding: 9px 16px; border-radius: 999px; cursor: pointer; }
+.replies button:hover { background: var(--pen); color: var(--sheet); border-color: var(--pen); }
+.chat-reset { justify-self: center; font-size: .82rem; background: none; border: 0; color: var(--graphite); text-decoration: underline; cursor: pointer; font-family: var(--f-body); margin-top: 6px; }
+
+.days { margin: 4px 0 0; padding: 0; list-style: none; border-left: 1.5px solid var(--hairline); }
+.days li { display: grid; grid-template-columns: 112px 1fr; gap: 12px; padding: 8px 0 8px 18px; position: relative; }
+.days li::before { content: ""; position: absolute; left: -5px; top: 18px; width: 8px; height: 8px; border-radius: 50%; background: var(--paper); border: 1.5px solid var(--graphite); }
+.days li:last-child::before { background: var(--margin); border-color: var(--margin); }
+.days b { font-weight: 500; font-variant-numeric: tabular-nums; }
+
+/* ---------- vault ---------- */
+.see { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--hairline); background: var(--sheet); margin-top: 36px; }
+.see > div { padding: 22px 24px; display: grid; gap: 12px; align-content: start; min-width: 0; }
+.see > div + div { border-left: 1px solid var(--hairline); background: var(--receipt); }
+.see .lab { font-size: .9rem; color: var(--graphite); }
+.words { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px 12px; font-family: var(--f-mono); font-size: .88rem; counter-reset: w; }
+.words span { counter-increment: w; }
+.words span::before { content: counter(w) " "; color: #A3A3A8; font-size: .75rem; }
+.garble { font-family: var(--f-mono); font-size: .82rem; color: var(--graphite); word-break: break-all; line-height: 1.7; }
+@media (max-width: 640px) { .see { grid-template-columns: 1fr; } .see > div + div { border-left: 0; border-top: 1px solid var(--hairline); } }
+.keys { display: flex; gap: 10px 26px; flex-wrap: wrap; margin-top: 8px; font-size: .98rem; }
+.keys > span { display: inline-flex; align-items: center; gap: 8px; }
+.keys svg { width: 22px; height: 22px; flex: none; }
+
+/* ---------- letter ---------- */
+.letter-wrap { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, .75fr); gap: clamp(32px, 5vw, 64px); align-items: start; margin-top: 40px; }
+@media (max-width: 860px) { .letter-wrap { grid-template-columns: 1fr; } }
+.letter { transform: rotate(-.6deg); }
+.letter p { font-family: var(--f-hand); color: var(--pen); font-size: 1.18rem; line-height: var(--line); }
+.letter .to { font-size: 1.3rem; }
+.letter .sig { text-align: right; }
+.when { display: grid; gap: 14px; }
+.when-opts { display: grid; gap: 14px; justify-items: start; }
+.when-opts button {
+  position: relative; background: none; border: 0; padding: 4px 6px; cursor: pointer; text-align: left;
+  font: 400 1.02rem/1.45 var(--f-body); color: var(--ink);
+}
+.when-opts button small { display: block; color: var(--graphite); font-size: .86rem; }
+.when-opts button[aria-pressed="true"]::after {
+  content: ""; position: absolute; inset: -8px -16px -8px -12px; border: 2px solid var(--pen);
+  border-radius: 52% 46% 55% 44% / 58% 44% 56% 46%; transform: rotate(-1.5deg); pointer-events: none;
+}
+
+/* ---------- receipt ---------- */
+.bill { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 360px); gap: clamp(32px, 6vw, 80px); align-items: start; margin-top: 40px; }
+@media (max-width: 860px) { .bill { grid-template-columns: 1fr; } }
+.picks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 24px; }
+@media (max-width: 480px) { .picks { grid-template-columns: 1fr; } }
+.picks label { display: flex; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px dashed var(--hairline); cursor: pointer; font-size: 1rem; }
+.picks input { width: 18px; height: 18px; accent-color: var(--pen); flex: none; }
+.picks .pr { margin-left: auto; font-family: var(--f-mono); font-size: .85rem; color: var(--graphite); font-variant-numeric: tabular-nums; }
+.receipt {
+  background: var(--receipt); padding: 26px 22px 30px; font-family: var(--f-mono); font-size: .86rem; line-height: 1.6;
+  position: relative; transform: rotate(.8deg);
+  -webkit-mask: radial-gradient(circle 6px at 50% 100%, transparent 98%, #000) 0 0 / 16px 100% repeat-x;
+          mask: radial-gradient(circle 6px at 50% 100%, transparent 98%, #000) 0 0 / 16px 100% repeat-x;
+}
+.receipt .c { text-align: center; }
+.receipt .t { font-family: var(--f-body); font-weight: 600; font-size: 1rem; }
+.receipt hr { border: 0; border-top: 1px dashed #A9A9A4; margin: 12px 0; }
+.receipt .r { display: flex; justify-content: space-between; gap: 10px; font-family: var(--f-body); font-size: .92rem; }
+.receipt .r > span:last-child { font-family: var(--f-mono); font-size: .84rem; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.receipt .st { display: block; font-size: .74rem; color: var(--graphite); font-family: var(--f-mono); }
+.receipt .tot { font-weight: 500; font-size: 1rem; }
+.receipt .empty { color: var(--graphite); font-family: var(--f-body); text-align: center; padding: 8px 0; }
+
+/* ---------- contents ---------- */
+.toc { margin: 36px 0 0; padding: 0; list-style: none; }
+.toc li { padding: 14px 0; border-bottom: 1px solid var(--hairline); }
+.toc .row { display: flex; align-items: baseline; gap: 10px; }
+.toc .name { font-family: var(--f-display); font-size: 1.18rem; font-weight: 500; }
+.toc .dots { flex: 1; border-bottom: 1.5px dotted #B9B9B4; transform: translateY(-5px); min-width: 20px; }
+.toc .plan { font-size: .95rem; white-space: nowrap; color: var(--graphite); }
+.toc .plan.plus { color: var(--pen); }
+.toc p { color: var(--graphite); font-size: .98rem; margin-top: 2px; max-width: 58ch; }
+
+/* ---------- pricing ---------- */
+.prices { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 40px; border-top: 2px solid var(--ink); }
+.prices > div { padding: 24px 24px 8px 0; display: grid; gap: 10px; grid-template-rows: auto auto 1fr auto auto; min-width: 0; }
+.prices > div + div { padding-left: 24px; border-left: 1px solid var(--hairline); }
+.prices .amt { font-family: var(--f-display); font-size: 2.4rem; font-weight: 500; line-height: 1.1; }
+.prices .amt small { font-family: var(--f-body); font-size: .95rem; color: var(--graphite); font-weight: 400; }
+.prices ul { margin: 6px 0 0; padding-left: 1.1em; color: var(--graphite); font-size: .98rem; }
+.prices li { margin-bottom: 4px; }
+.prices .btn { justify-self: start; margin-top: 10px; }
+.prices .hand { font-size: 1.05rem; transform: rotate(-2deg); display: inline-block; min-height: 1.6em; }
+@media (max-width: 760px) { .prices { grid-template-columns: 1fr; } .prices > div + div { padding-left: 0; border-left: 0; border-top: 1px solid var(--hairline); } }
+.partner { margin-top: 56px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 20px 40px; align-items: center; padding: 28px; border: 1px solid var(--hairline); background: var(--sheet); }
+.partner p { color: var(--graphite); max-width: 60ch; }
+@media (max-width: 760px) { .partner { grid-template-columns: 1fr; } }
+
+/* ---------- law ---------- */
+.law table { width: 100%; border-collapse: collapse; margin-top: 18px; font-size: .95rem; }
+.law th, .law td { text-align: left; vertical-align: top; padding: 10px 12px 10px 0; border-top: 1px solid var(--hairline); }
+.law th { font-weight: 500; white-space: nowrap; width: 1%; padding-right: 20px; }
+.tbl { overflow-x: auto; }
+
+/* ---------- faq ---------- */
+.faq details { border-top: 1px solid var(--hairline); }
+.faq details:last-child { border-bottom: 1px solid var(--hairline); }
+.faq summary { cursor: pointer; padding: 18px 40px 18px 0; font-family: var(--f-display); font-size: 1.18rem; font-weight: 500; position: relative; list-style: none; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; position: absolute; right: 6px; top: 14px; font-family: var(--f-hand); color: var(--pen); font-size: 1.5rem; transition: transform .2s; }
+.faq details[open] summary::after { transform: rotate(45deg); }
+.faq details p, .faq details ol { color: var(--graphite); padding-bottom: 20px; max-width: 62ch; }
+.faq details ol { margin: 0; padding-left: 1.2em; }
+
+/* ---------- end ---------- */
+.end { padding-block: clamp(72px, 11vw, 140px) 40px; }
+.end .big { font-family: var(--f-hand); color: var(--pen); font-size: clamp(2.6rem, 8vw, 5rem); line-height: 1.15; }
+.signup { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 28px; max-width: 520px; }
+.signup input { flex: 1 1 240px; min-width: 0; font: 400 1rem var(--f-body); padding: 14px 16px; border: 1px solid #BDBDB8; border-radius: 6px; background: var(--sheet); color: var(--ink); }
+.signup input:focus { outline: 2px solid var(--pen); outline-offset: 1px; border-color: var(--pen); }
+.msg { min-height: 1.6em; margin-top: 10px; font-size: .95rem; }
+.msg.err { color: var(--error); }
+.msg.ok { color: var(--pen); font-family: var(--f-hand); font-size: 1.1rem; }
+footer { padding-block: 28px 40px; font-size: .9rem; color: var(--graphite); }
+footer .page { display: flex; gap: 10px 24px; flex-wrap: wrap; justify-content: space-between; border-top: 1px solid var(--hairline); padding-top: 22px; }
+footer a { color: var(--graphite); }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="page">
+    <a class="mark" href="#" aria-label="Lastly">Lastly,<svg viewBox="0 0 100 12" preserveAspectRatio="none" aria-hidden="true"><path d="M2 8 C 25 3, 55 11, 98 4" fill="none" stroke="#E07B6E" stroke-width="2.2" stroke-linecap="round"/></svg></a>
+    <nav aria-label="Menu">
+      <a class="opt" href="#how"><span class="th">ทำงานยังไง</span><span class="en">How it works</span></a>
+      <a class="opt" href="#price"><span class="th">ราคา</span><span class="en">Pricing</span></a>
+      <a class="opt" href="#faq"><span class="th">คำถาม</span><span class="en">FAQ</span></a>
+      <span class="lang" role="group" aria-label="Language / ภาษา">
+        <button type="button" id="langTh" data-lang="th" aria-pressed="true">TH</button>
+        <button type="button" id="langEn" data-lang="en" aria-pressed="false">EN</button>
+      </span>
+    </nav>
+  </div>
+</header>
+
+<main>
+<!-- ===== hero ===== -->
+<section class="hero">
+  <div class="page">
+    <div class="hero-text">
+      <h1 class="th">ไม่ได้แช่งตัวเอง<br><span class="soft">แค่เผื่อไว้</span></h1>
+      <h1 class="en">Not tempting fate.<br><span class="soft">Just in case.</span></h1>
+      <p class="th">รหัสมือถือ เหรียญคริปโต จดหมายถึงแม่ และบัญชีที่ตัดเงินทุกเดือน จดเก็บไว้ที่นี่ ถ้าวันหนึ่งคุณไม่ได้กลับบ้าน เราจะส่งต่อให้คนที่คุณเลือก วันอื่นๆ ไม่มีใครเปิดได้ รวมถึงเราด้วย</p>
+      <p class="en">Your phone passcode, your crypto, a letter to your mum, the subscriptions that bill you every month. Write them down here. If one day you don't come home, we pass them to the people you chose. Every other day, nobody can open them, including us.</p>
+      <div class="hero-cta">
+        <a class="btn" href="#start"><span class="th">เริ่มจดเรื่องแรก</span><span class="en">Write your first note</span></a>
+        <span class="hand"><span class="th">ฟรี ใช้เวลาราว 15 นาที</span><span class="en">Free, about 15 minutes</span></span>
+      </div>
+    </div>
+
+    <div class="sheet note">
+      <span class="tape" aria-hidden="true"></span>
+      <h2><span class="th">เรื่องที่ต้องบอกไว้</span><span class="en">Things they should know</span></h2>
+      <ol class="th">
+        <li>รหัสมือถือ <span class="redact">482913</span> <span class="tick">✓</span></li>
+        <li>seed กระเป๋าคริปโต อยู่ในตู้เซฟ <span class="tick">✓</span></li>
+        <li><s>ยกเลิก Netflix กับฟิตเนสด้วย</s> Lastly จัดการให้</li>
+        <li>ส้มโอกินอาหารเม็ดสูตรแมวแก่ ฝากน้องฟ้า</li>
+        <li>ไม่ต้องจัดงานใหญ่ สวด 3 คืนพอ</li>
+        <li>เลขกรมธรรม์ประกันชีวิต <span class="tick">✓</span></li>
+        <li>จดหมายถึงแม่ ส่งวันแม่ปีหน้า</li>
+      </ol>
+      <ol class="en">
+        <li>Phone passcode <span class="redact">482913</span> <span class="tick">✓</span></li>
+        <li>Crypto wallet seed is in the vault <span class="tick">✓</span></li>
+        <li><s>Cancel Netflix and the gym</s> Lastly does it</li>
+        <li>Som-O eats senior cat food. Fah takes her.</li>
+        <li>No big funeral. Three nights of chanting.</li>
+        <li>Life insurance policy number <span class="tick">✓</span></li>
+        <li>Letter to Mum, send on Mother's Day</li>
+      </ol>
+      <p class="sig"><span class="th">— ต้น, 3 ต.ค. 69</span><span class="en">— Ton, 3 Oct 2026</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== check-in ===== -->
+<section class="block" id="how">
+  <div class="page split">
+    <div class="stack">
+      <h2 class="th">ทุก 3 เดือน เราจะทักไปถามว่าสบายดีไหม</h2>
+      <h2 class="en">Every three months, we check in to ask how you are</h2>
+      <p class="th">ทักผ่าน LINE, SMS, WhatsApp หรืออีเมล ตามที่คุณสะดวก ตอบแค่ปุ่มเดียวก็พอ จะตั้งให้ถามทุก 6 เดือนก็ได้</p>
+      <p class="en">By LINE, WhatsApp, SMS or email, whichever you actually read. One tap is enough. You can make it every six months if you prefer.</p>
+      <p class="th">ถ้าคุณเงียบไป เราไม่รีบ ระบบจะถามซ้ำหลายรอบก่อนจะทำอะไร</p>
+      <p class="en">If you go quiet, we take our time. We ask again, several ways, before anything happens.</p>
+      <ul class="days">
+        <li><b><span class="th">วันแรก</span><span class="en">Day 1</span></b><span class="th">ทักในแชทและแอป</span><span class="en">A message in chat and in the app</span></li>
+        <li><b><span class="th">3 วันต่อมา</span><span class="en">3 days later</span></b><span class="th">ส่ง SMS และอีเมลอีกรอบ</span><span class="en">SMS and email</span></li>
+        <li><b><span class="th">7 วันต่อมา</span><span class="en">7 days later</span></b><span class="th">เจ้าหน้าที่โทรหาคุณเอง</span><span class="en">A real person calls you</span></li>
+        <li><b><span class="th">14 วันต่อมา</span><span class="en">14 days later</span></b><span class="th">ถามคนที่คุณไว้ใจ 3 คน ต้องตอบตรงกันอย่างน้อย 2 คน หรือมีใบมรณบัตร</span><span class="en">We ask your three trusted contacts. At least two must agree, or a death certificate is provided</span></li>
+        <li><b><span class="th">30 วันต่อมา</span><span class="en">30 days later</span></b><span class="th">เปิดตู้เซฟและส่งของที่ฝากไว้ให้คนที่คุณเลือก</span><span class="en">The vault opens and everything goes to the people you chose</span></li>
+      </ul>
+    </div>
+
+    <div class="chat" id="chat" aria-live="polite">
+      <div class="chat-head"><span class="av">L</span><div>Lastly<small><span class="th">ตัวอย่างข้อความ กดตอบได้</span><span class="en">Sample message. Try replying.</span></small></div></div>
+      <div class="bubble"><span class="th">สวัสดีครับคุณต้น ครบ 90 วันแล้ว ช่วงนี้สบายดีไหมครับ</span><span class="en">Hi Ton, it's been 90 days. How are you doing?</span><time>09:00</time></div>
+      <div class="replies" id="replies">
+        <button type="button" id="rOk"><span class="th">สบายดี</span><span class="en">I'm fine</span></button>
+        <button type="button" id="rLater"><span class="th">ขอเลื่อน 2 สัปดาห์</span><span class="en">Ask me in 2 weeks</span></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== vault ===== -->
+<section class="block">
+  <div class="page">
+    <div class="col stack">
+      <h2 class="th">เราเก็บให้ แต่เราอ่านไม่ได้</h2>
+      <h2 class="en">We keep it. We can't read it.</h2>
+      <p class="th">ทุกอย่างถูกเข้ารหัสบนเครื่องของคุณก่อนจะส่งมาถึงเรา สิ่งที่อยู่บนเซิร์ฟเวอร์จึงเป็นตัวอักษรที่อ่านไม่ออก พนักงานเราเปิดไม่ได้ คนที่เจาะระบบเข้ามาก็เปิดไม่ได้</p>
+      <p class="en">Everything is encrypted on your own device before it reaches us. What sits on our servers is unreadable. Our staff can't open it, and neither can anyone who breaks in.</p>
+    </div>
+    <div class="see">
+      <div>
+        <span class="lab"><span class="th">สิ่งที่คุณเห็น</span><span class="en">What you see</span></span>
+        <div class="words"><span>orbit</span><span>salad</span><span>wisdom</span><span>tackle</span><span>humble</span><span>ocean</span><span>credit</span><span>mango</span><span>lyrics</span><span>vacant</span><span>pilot</span><span>ribbon</span></div>
+      </div>
+      <div>
+        <span class="lab"><span class="th">สิ่งที่เซิร์ฟเวอร์เราเห็น</span><span class="en">What our server sees</span></span>
+        <p class="garble">U2FsdGVkX19vK3Rk8fQe2b7Lx0mQhP4aYcJt9VnR1wZsE6uGkD5yHq0iXjBo3LpMfA7rTcW2eNvS8gKz4hUd1lOy9xIaC6bF</p>
+      </div>
+    </div>
+    <div class="col stack" style="margin-top:28px">
+      <p class="th">กุญแจถูกแบ่งเป็น 3 ชิ้น ต้องมีอย่างน้อย 2 ชิ้นถึงจะเปิดได้</p>
+      <p class="en">The key is split into three pieces. Any two can open the vault.</p>
+      <div class="keys">
+        <span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="12" r="4.5" fill="none" stroke="#2348A6" stroke-width="1.8"/><path d="M12.5 12h9M18 12v3.5M21 12v2.5" stroke="#2348A6" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg><span class="th">ชิ้นที่ 1 อยู่กับคุณ</span><span class="en">One stays with you</span></span>
+        <span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="12" r="4.5" fill="none" stroke="#2348A6" stroke-width="1.8"/><path d="M12.5 12h9M18 12v3.5M21 12v2.5" stroke="#2348A6" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg><span class="th">ชิ้นที่ 2 อยู่กับทายาทหลัก</span><span class="en">One goes to your main heir</span></span>
+        <span class="muted"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="12" r="4.5" fill="none" stroke="#66666C" stroke-width="1.8"/><path d="M12.5 12h9M18 12v3.5M21 12v2.5" stroke="#66666C" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg><span class="th">ชิ้นที่ 3 อยู่กับเรา ปล่อยเมื่อยืนยันครบแล้วเท่านั้น</span><span class="en">We hold the third, and release it only after every check passes</span></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== letter ===== -->
+<section class="block">
+  <div class="page">
+    <div class="col stack">
+      <h2 class="th">บางเรื่อง อยากให้เขาได้ยินจากเราเอง</h2>
+      <h2 class="en">Some things they should hear from you</h2>
+      <p class="th">เขียนจดหมาย อัดเสียง หรืออัดคลิปไว้ให้คนสำคัญ แก้ได้ตลอด คนรับจะไม่รู้จนกว่าจะถึงวันที่คุณเลือก</p>
+      <p class="en">Write a letter, record a voice note or a video for the people who matter. Edit it whenever you like. They won't know it exists until the day you pick.</p>
+    </div>
+    <div class="letter-wrap">
+      <div class="sheet letter">
+        <span class="tape" aria-hidden="true"></span>
+        <div class="th">
+          <p class="to">ถึงแม่</p>
+          <p>ถ้าแม่ได้อ่านจดหมายนี้ แปลว่าผมไม่ได้อยู่บอกเองแล้ว</p>
+          <p>ขอบคุณที่ตื่นมาทำข้าวให้ทุกเช้าตลอดสิบแปดปี ผมไม่เคยพูดออกไปตรงๆ สักครั้ง</p>
+          <p>รหัสตู้เซฟอยู่กับพี่นัท ส่วนส้มโอ ฝากน้องฟ้าดูแลนะครับ มันชอบนอนบนตู้เย็น</p>
+          <p>อย่าร้องไห้นานนะแม่</p>
+          <p class="sig">รักแม่ ต้น</p>
+        </div>
+        <div class="en">
+          <p class="to">Mum,</p>
+          <p>If you're reading this, I didn't get to tell you myself.</p>
+          <p>Thank you for getting up to cook breakfast for me every morning for eighteen years. I never said it out loud, not once.</p>
+          <p>Nat has the vault key. Please let Fah look after Som-O. She likes sleeping on top of the fridge.</p>
+          <p>Don't cry for too long, okay?</p>
+          <p class="sig">Love you, Ton</p>
+        </div>
+      </div>
+      <div class="when">
+        <p class="muted"><span class="th">ส่งเมื่อไหร่ดี</span><span class="en">When should it arrive?</span></p>
+        <div class="when-opts" role="group">
+          <button type="button" id="wRelease" aria-pressed="false"><span class="th">หลังยืนยันว่าจากไปแล้ว<small>ส่งทันทีที่ตู้เซฟถูกเปิด</small></span><span class="en">After I'm gone<small>As soon as the vault opens</small></span></button>
+          <button type="button" id="wDate" aria-pressed="true"><span class="th">ในวันที่กำหนด<small>12 สิงหาคม วันแม่ ปีถัดไป</small></span><span class="en">On a set date<small>12 August, Thai Mother's Day, the year after</small></span></button>
+          <button type="button" id="wEvent" aria-pressed="false"><span class="th">เมื่อมีเรื่องสำคัญในชีวิตเขา<small>เช่น วันที่ลูกเรียนจบ ให้ทายาทกดยืนยัน</small></span><span class="en">At a moment in their life<small>Like a graduation, confirmed by your heir</small></span></button>
+        </div>
+        <p class="hand" style="margin-top:14px"><span class="th">แนบความต้องการเรื่องงานศพ<br>หรือการบริจาคร่างกายไว้ด้วยได้</span><span class="en">You can attach funeral wishes<br>or organ donation choices too</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== receipt ===== -->
+<section class="block">
+  <div class="page">
+    <div class="col stack">
+      <h2 class="th">บัญชีที่ตัดเงินทุกเดือน จะตัดไปเรื่อยๆ จนกว่าจะมีคนไปยกเลิก</h2>
+      <h2 class="en">Subscriptions keep billing until someone cancels them</h2>
+      <p class="th">เมื่อทายาทส่งใบมรณบัตรมา เราจะยื่นยกเลิกบริการรายเดือน เปลี่ยน Facebook และ Instagram เป็นบัญชีระลึกถึงไม่ให้ใครแฮ็กได้ และทำหนังสือแจ้งธนาคารให้ ลองเลือกสิ่งที่คุณจ่ายอยู่ดู</p>
+      <p class="en">Once your family sends us the death certificate, we file the cancellations, turn Facebook and Instagram into memorial accounts so nobody can hijack them, and prepare the letters to your bank. Tick what you pay for now.</p>
+    </div>
+    <div class="bill">
+      <div class="picks" id="picks"></div>
+      <div class="receipt" aria-live="polite">
+        <div class="c t"><span class="th">ใบสรุปการปิดบัญชี</span><span class="en">Account closure summary</span></div>
+        <div class="c">Lastly · No. 0001</div>
+        <hr>
+        <div id="lines"></div>
+        <hr>
+        <div class="r tot"><span><span class="th">หยุดตัดเงินได้ / เดือน</span><span class="en">Stopped per month</span></span><span id="perMonth">฿0</span></div>
+        <div class="r tot"><span><span class="th">ถ้าไม่มีใครรู้ 1 ปี</span><span class="en">If nobody knew, 1 year</span></span><span id="perYear">฿0</span></div>
+        <hr>
+        <div class="c st"><span class="th">ราคาโดยประมาณ ใช้ดูเป็นตัวอย่าง</span><span class="en">Approximate Thai prices, for illustration</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== contents ===== -->
+<section class="block">
+  <div class="page">
+    <div class="col stack">
+      <h2 class="th">ฝากอะไรไว้ได้บ้าง</h2>
+      <h2 class="en">What you can leave here</h2>
+      <p class="muted"><span class="th">ด้านขวาบอกว่าใช้ได้ในแพ็กเกจไหน</span><span class="en">The right column shows which plan includes it.</span></p>
+    </div>
+    <ol class="toc col">
+      <li><div class="row"><span class="name"><span class="th">รหัสผ่านมือถือ อีเมล และโซเชียล</span><span class="en">Phone, email and social logins</span></span><span class="dots"></span><span class="plan"><span class="th">ฟรี 3 บัญชี</span><span class="en">Free, 3</span></span></div><p><span class="th">เลือกได้ว่าบัญชีไหนให้ใครเปิด บัญชีไหนให้ปิดทิ้ง</span><span class="en">Decide who opens which account, and which ones get closed.</span></p></li>
+      <li><div class="row"><span class="name"><span class="th">จดหมายถึงคนสำคัญ</span><span class="en">Letters to the people you love</span></span><span class="dots"></span><span class="plan"><span class="th">ฟรี 3 ฉบับ</span><span class="en">Free, 3</span></span></div><p><span class="th">ตั้งเวลาส่งได้ ทั้งหลังจากไปแล้ว หรือในวันสำคัญของเขา</span><span class="en">Delivered after you're gone, or on a day that matters to them.</span></p></li>
+      <li><div class="row"><span class="name"><span class="th">รายการบัญชีธนาคาร กองทุน และประกัน</span><span class="en">A map of your bank accounts, funds and policies</span></span><span class="dots"></span><span class="plan"><span class="th">ฟรี</span><span class="en">Free</span></span></div><p><span class="th">จดแค่ว่ามีอยู่ที่ไหน ไม่ต้องใส่ยอดเงิน ทายาทจะได้ไม่พลาดเงินที่ไม่มีใครรู้ว่ามี</span><span class="en">Just where they are, no balances. Your family won't miss money nobody knew existed.</span></p></li>
+      <li><div class="row"><span class="name"><span class="th">งานศพแบบที่อยากได้</span><span class="en">The funeral you'd want</span></span><span class="dots"></span><span class="plan"><span class="th">ฟรี</span><span class="en">Free</span></span></div><p><span class="th">วัด จำนวนคืนที่สวด ลอยอังคารหรือเก็บอัฐิ เพลงที่อยากให้เปิด และการบริจาคอวัยวะ</span><span class="en">Temple or venue, how many nights of rites, scattering or keeping the ashes, the songs, and organ donation.</span></p></li>
+      <li><div class="row"><span class="name"><span class="th">คนเลี้ยงสัตว์ต่อ</span><span class="en">Who takes the pets</span></span><span class="dots"></span><span class="plan"><span class="th">ฟรี</span><span class="en">Free</span></span></div><p><span class="th">เราจะแจ้งคนนี้เป็นคนแรก เพราะหมาแมวรอไม่ได้</span><span class="en">We tell this person first. Pets can't wait.</span></p></li>
+      <li><div class="row"><span class="name"><span class="th">ช่วงไม่อยู่</span><span class="en">Away mode</span></span><span class="dots"></span><span class="plan"><span class="th">ฟรี</span><span class="en">Free</span></span></div><p><span class="th">ไปบวช เดินป่า หรือไปทำงานไกล พักการถามได้สูงสุด 90 วัน</span><span class="en">Ordination retreat, a long trek, a posting abroad. Pause check-ins for up to 90 days.</span></p></li>
+      <li><div class="row"><span class="name"><span class="th">seed phrase และกุญแจคริปโต</span><span class="en">Seed phrases and crypto keys</span></span><span class="dots"></span><span class="plan plus"><span class="th">พลัส</span><span class="en">Plus</span></span></div><p><span class="th">ทรัพย์สินที่ถ้าไม่มีรหัส ก็หายไปตลอดกาล</span><span class="en">Without the key, these are gone for good.</span></p></li>
+      <li><div class="row"><span class="name"><span class="th">คลิปวิดีโอและเสียง</span><span class="en">Video and voice messages</span></span><span class="dots"></span><span class="plan plus"><span class="th">พลัส</span><span class="en">Plus</span></span></div><p><span class="th">พลัสเก็บได้ 20 GB แพ็กเกจตลอดชีพเก็บได้ 100 GB</span><span class="en">20 GB on Plus, 100 GB on Lifetime.</span></p></li>
+      <li><div class="row"><span class="name"><span class="th">ทายาทหลายคน แยกกันดูแล</span><span class="en">Several heirs, separate duties</span></span><span class="dots"></span><span class="plan plus"><span class="th">พลัส</span><span class="en">Plus</span></span></div><p><span class="th">พี่ดูแลคริปโต น้องดูแลรูปถ่าย เพื่อนสนิทปิดโซเชียล ต่างคนต่างเห็นเฉพาะส่วนของตัวเอง</span><span class="en">Your brother gets the crypto, your sister the photos, your best friend closes the socials. Each sees only their part.</span></p></li>
+      <li><div class="row"><span class="name"><span class="th">ปิดบัญชีรายเดือนให้</span><span class="en">Subscription cancelling</span></span><span class="dots"></span><span class="plan plus"><span class="th">พลัส</span><span class="en">Plus</span></span></div><p><span class="th">ยกเลิกบริการ เปลี่ยนเป็นบัญชีระลึกถึง และติดตามจนเสร็จ</span><span class="en">We cancel, memorialise, and follow up until it's done.</span></p></li>
+      <li><div class="row"><span class="name"><span class="th">ร่างพินัยกรรมกระดาษ</span><span class="en">A paper will, drafted for you</span></span><span class="dots"></span><span class="plan plus"><span class="th">พลัส</span><span class="en">Plus</span></span></div><p><span class="th">ตอบคำถามไม่กี่ข้อ ได้ร่างตามแบบที่กฎหมายไทยรับรอง พิมพ์ออกมาเซ็นได้เลย</span><span class="en">Answer a few questions and get a draft in a form Thai law recognises, ready to print and sign.</span></p></li>
+    </ol>
+  </div>
+</section>
+
+<!-- ===== price ===== -->
+<section class="block" id="price">
+  <div class="page">
+    <div class="col stack">
+      <h2><span class="th">ราคา</span><span class="en">Pricing</span></h2>
+      <p class="th">เรื่องแบบนี้ไม่ควรมีบิลมาเตือนทุกเดือน เราเลยมีแบบจ่ายครั้งเดียวด้วย</p>
+      <p class="en">This shouldn't come with a monthly bill reminding you of it, so there's a pay-once option too.</p>
+    </div>
+    <div class="prices">
+      <div>
+        <h3><span class="th">เริ่มต้น</span><span class="en">Starter</span></h3>
+        <div class="amt">0 <small><span class="th">บาท</span><span class="en">THB</span></small></div>
+        <ul class="th"><li>รหัสผ่าน 3 บัญชี</li><li>จดหมาย 3 ฉบับ</li><li>ทายาท 1 คน</li></ul>
+        <ul class="en"><li>3 logins</li><li>3 letters</li><li>1 heir</li></ul>
+        <a class="btn line" href="#start"><span class="th">เริ่มฟรี</span><span class="en">Start free</span></a>
+        <span class="hand"></span>
+      </div>
+      <div>
+        <h3><span class="th">พลัส</span><span class="en">Plus</span></h3>
+        <div class="amt">990 <small><span class="th">บาท / ปี</span><span class="en">THB / year</span></small></div>
+        <ul class="th"><li>ไม่จำกัดจำนวน</li><li>คริปโต วิดีโอ 20 GB</li><li>ทายาท 5 คน</li><li>ปิดบัญชีรายเดือนให้</li></ul>
+        <ul class="en"><li>Unlimited logins and letters</li><li>Crypto keys, 20 GB video</li><li>5 heirs</li><li>Subscription cancelling</li></ul>
+        <a class="btn line" href="#start"><span class="th">ลองฟรี 30 วัน</span><span class="en">Try 30 days free</span></a>
+        <span class="hand"></span>
+      </div>
+      <div>
+        <h3><span class="th">ตลอดชีพ</span><span class="en">Lifetime</span></h3>
+        <div class="amt">5,900 <small><span class="th">บาท ครั้งเดียว</span><span class="en">THB, once</span></small></div>
+        <ul class="th"><li>ทุกอย่างในพลัส</li><li>วิดีโอ 100 GB ทายาทไม่จำกัด</li><li>ทนายตรวจร่างพินัยกรรม 1 ครั้ง</li></ul>
+        <ul class="en"><li>Everything in Plus</li><li>100 GB video, unlimited heirs</li><li>One lawyer review of your will</li></ul>
+        <a class="btn" href="#start"><span class="th">ซื้อครั้งเดียว</span><span class="en">Pay once</span></a>
+        <span class="hand"><span class="th">ไม่ต้องจำวันต่ออายุ</span><span class="en">No renewal date to remember</span></span>
+      </div>
+    </div>
+
+    <div class="partner">
+      <div class="stack" style="gap:8px">
+        <h3><span class="th">ทำงานที่บริษัทประกันหรือธนาคาร</span><span class="en">Work at an insurer or a bank?</span></h3>
+        <p class="th">ให้ลูกค้ากรมธรรม์สะสมทรัพย์และประกันมรดกใช้ Lastly ได้ฟรีภายใต้ชื่อของคุณ ทายาทรู้ว่ามีกรมธรรม์ เคลมได้เร็วขึ้น และลูกค้ามีเหตุผลที่จะอยู่กับคุณต่อ</p>
+        <p class="en">Offer Lastly free to your endowment and legacy policyholders, under your brand. Families know the policy exists, claims move faster, and customers have a reason to stay.</p>
+      </div>
+      <a class="btn line" href="#start"><span class="th">คุยกับทีมพันธมิตร</span><span class="en">Talk to partnerships</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== law ===== -->
+<section class="block">
+  <div class="page">
+    <div class="col stack law">
+      <h2 class="th">เรื่องพินัยกรรม ขอพูดตรงๆ</h2>
+      <h2 class="en">About wills, plainly</h2>
+      <p class="th">ตามกฎหมายไทย พินัยกรรมที่มีผลต้องทำตามแบบที่ประมวลกฎหมายแพ่งและพาณิชย์กำหนด สิ่งที่อยู่ใน Lastly จึงเป็นการส่งต่อข้อมูลและความประสงค์ ไม่ใช่พินัยกรรม เราช่วยร่างให้ คุณพิมพ์ เซ็น และเก็บต้นฉบับไว้เอง แล้วจดไว้ใน Lastly ว่าเก็บไว้ที่ไหน</p>
+      <p class="en">Under Thai law, a will only counts if it follows a form set out in the Civil and Commercial Code. What you keep in Lastly passes on information and wishes; it isn't a will. We draft one for you, you print it, sign it and keep the original, then note in Lastly where it is.</p>
+      <div class="tbl">
+        <table>
+          <tr><th><span class="th">มาตรา 1656</span><span class="en">Section 1656</span></th><td><span class="th">แบบธรรมดา ทำเป็นหนังสือ ลงวันที่ เซ็นต่อหน้าพยาน 2 คนพร้อมกัน และพยานเซ็นรับรอง</span><span class="en">Ordinary form. Written, dated, signed in front of two witnesses present together, who also sign.</span></td></tr>
+          <tr><th><span class="th">มาตรา 1657</span><span class="en">Section 1657</span></th><td><span class="th">แบบเขียนเองทั้งฉบับ เขียนด้วยลายมือตัวเองทั้งหมด ลงวันที่และเซ็นชื่อ ไม่ต้องมีพยาน แต่พิมพ์ไม่ได้</span><span class="en">Holograph. Entirely in your own handwriting, dated and signed. No witnesses needed, but it can't be typed.</span></td></tr>
+          <tr><th><span class="th">มาตรา 1658</span><span class="en">Section 1658</span></th><td><span class="th">แบบเอกสารฝ่ายเมือง แจ้งต่อนายอำเภอหรือผู้อำนวยการเขต ต่อหน้าพยาน 2 คน</span><span class="en">Public document. Declared to a district officer in front of two witnesses.</span></td></tr>
+        </table>
+      </div>
+      <p class="muted" style="font-size:.9rem"><span class="th">เป็นข้อมูลทั่วไป ไม่ใช่คำปรึกษาทางกฎหมาย ถ้าทรัพย์สินซับซ้อนควรคุยกับทนาย</span><span class="en">General information, not legal advice. If your estate is complicated, talk to a lawyer.</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== faq ===== -->
+<section class="block" id="faq">
+  <div class="page">
+    <div class="col">
+      <h2 style="margin-bottom:28px"><span class="th">คำถามที่คนถามบ่อย</span><span class="en">Questions people ask</span></h2>
+      <div class="faq">
+        <details open>
+          <summary><span class="th">ลืมตอบตอนไปเที่ยว ข้อมูลจะถูกส่งไปเลยไหม</span><span class="en">What if I miss a check-in on holiday?</span></summary>
+          <p class="th">ไม่ เราถามซ้ำอย่างน้อย 30 วันผ่านหลายช่องทาง และต้องมีคนที่คุณไว้ใจตอบตรงกัน 2 ใน 3 คนก่อน ถ้ารู้ว่าจะติดต่อไม่ได้ ตั้งช่วงไม่อยู่ไว้ได้</p>
+          <p class="en">Nothing gets sent. We keep asking for at least 30 days, several ways, and two of your three trusted contacts have to agree first. If you know you'll be out of reach, turn on away mode.</p>
+        </details>
+        <details>
+          <summary><span class="th">ยังหนุ่มยังสาว จำเป็นต้องทำไหม</span><span class="en">I'm young. Do I really need this?</span></summary>
+          <p class="th">อุบัติเหตุไม่เลือกอายุ ถ้าคุณมีคริปโต มีบัญชีที่ตัดเงินรายเดือน หรืออยู่คนเดียว ครอบครัวจะตามหาสิ่งเหล่านี้ยากมาก ใช้เวลา 15 นาทีวันนี้ เขาไม่ต้องตามหาเป็นปี</p>
+          <p class="en">Accidents don't check your age. If you hold crypto, pay for subscriptions or live alone, your family will struggle to find any of it. Fifteen minutes now saves them a year of searching.</p>
+        </details>
+        <details>
+          <summary><span class="th">ครอบครัวต้องทำอะไรบ้างเมื่อถึงวันนั้น</span><span class="en">What does my family have to do?</span></summary>
+          <ol class="th">
+            <li>แจ้งการตายที่สำนักงานเขตหรืออำเภอภายใน 24 ชั่วโมง เพื่อรับใบมรณบัตร</li>
+            <li>ส่งใบมรณบัตรเข้า Lastly ระบบส่งจดหมายและเปิดตู้เซฟให้</li>
+            <li>เราปิดบัญชีรายเดือน ทายาทใช้เลขกรมธรรม์จากตู้เซฟยื่นเคลมประกัน</li>
+            <li>ยื่นศาลตั้งผู้จัดการมรดก โดยใช้พินัยกรรมกระดาษที่ทำไว้</li>
+          </ol>
+          <ol class="en">
+            <li>In Thailand, register the death at the district office within 24 hours to get the death certificate.</li>
+            <li>Upload the certificate to Lastly. Letters go out and the vault opens.</li>
+            <li>We close the subscriptions. Your heir claims the insurance using the policy number from the vault.</li>
+            <li>They petition the court to appoint an estate administrator, using your paper will.</li>
+          </ol>
+        </details>
+        <details>
+          <summary><span class="th">ถ้า Lastly ปิดกิจการ ข้อมูลจะไปไหน</span><span class="en">What happens if Lastly shuts down?</span></summary>
+          <p class="th">ข้อมูลที่เข้ารหัสจะถูกโอนให้ผู้ดูแลอิสระตามสัญญา และระบบถามสถานะยังทำงานต่อ คุณดาวน์โหลดสำเนาที่เข้ารหัสไว้เองได้ทุกเมื่อ</p>
+          <p class="en">Your encrypted data passes to an independent custodian under contract, and check-ins keep running. You can download your own encrypted copy at any time.</p>
+        </details>
+        <details>
+          <summary><span class="th">ข้อมูลเก็บที่ไหน</span><span class="en">Where is my data stored?</span></summary>
+          <p class="th">เซิร์ฟเวอร์ในประเทศไทย ดูแลตาม พ.ร.บ.คุ้มครองข้อมูลส่วนบุคคล และทุกอย่างที่เก็บถูกเข้ารหัสจากเครื่องคุณ</p>
+          <p class="en">On servers in Thailand, handled under the Personal Data Protection Act (PDPA), and everything is encrypted on your device first.</p>
+        </details>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== end ===== -->
+<section class="end" id="start">
+  <div class="page">
+    <p class="big"><span class="th">ฝากไว้ก่อนนะ</span><span class="en">Lastly, take care.</span></p>
+    <p class="muted" style="margin-top:12px; max-width:44ch"><span class="th">ใส่อีเมลไว้ เราจะส่งลิงก์ให้เริ่มจดเรื่องแรกเมื่อเปิดให้ใช้</span><span class="en">Leave your email and we'll send a link to start your first note when we open.</span></p>
+    <form class="signup" id="signup" novalidate>
+      <input id="email" type="email" autocomplete="email" aria-label="Email">
+      <button class="btn" type="submit"><span class="th">ขอลิงก์เริ่มต้น</span><span class="en">Get the link</span></button>
+    </form>
+    <p class="msg" id="msg" role="status"></p>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="page">
+    <span><span class="th">Lastly · ทำในกรุงเทพฯ</span><span class="en">Lastly · Made in Bangkok</span></span>
+    <span><a href="#how"><span class="th">ทำงานยังไง</span><span class="en">How it works</span></a> · <a href="#price"><span class="th">ราคา</span><span class="en">Pricing</span></a> · <a href="#faq"><span class="th">คำถาม</span><span class="en">FAQ</span></a></span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const root = document.documentElement;
+  let lang = 'th';
+  const T = (th, en) => (lang === 'en' ? en : th);
+
+  /* ---------- language ---------- */
+  function setLang(next) {
+    lang = next;
+    root.dataset.lang = next; root.lang = next;
+    document.querySelectorAll('.lang button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.lang === next)));
+    $('email').placeholder = T('อีเมลของคุณ', 'Your email');
+    try { localStorage.setItem('lastly-lang', next); } catch (e) {}
+    resetChat(); bill(); $('msg').textContent = '';
+  }
+  document.querySelectorAll('.lang button').forEach((b) => b.addEventListener('click', () => setLang(b.dataset.lang)));
+
+  const fmtDate = (days) => {
+    const d = new Date(); d.setDate(d.getDate() + days);
+    return d.toLocaleDateString(lang === 'en' ? 'en-GB' : 'th-TH', { day: 'numeric', month: 'long', year: 'numeric' });
+  };
+
+  /* ---------- check-in chat ---------- */
+  const chat = $('chat'), replies = $('replies');
+  const bubble = (text, me, time) => {
+    const b = document.createElement('div');
+    b.className = 'bubble added' + (me ? ' me' : '');
+    b.textContent = text;
+    const t = document.createElement('time'); t.textContent = time; b.appendChild(t);
+    chat.insertBefore(b, replies);
+  };
+  function answer(mine, reply) {
+    replies.hidden = true;
+    bubble(mine, true, '09:02');
+    setTimeout(() => {
+      bubble(reply, false, '09:02');
+      const r = document.createElement('button');
+      r.type = 'button'; r.className = 'chat-reset'; r.textContent = T('ลองอีกครั้ง', 'Try again');
+      r.addEventListener('click', resetChat); chat.appendChild(r);
+    }, 650);
+  }
+  function resetChat() {
+    chat.querySelectorAll('.bubble.added, .chat-reset').forEach((el) => el.remove());
+    replies.hidden = false;
+  }
+  $('rOk').addEventListener('click', () => answer(T('สบายดี', "I'm fine"),
+    T('ดีใจด้วยครับ แล้วเจอกันใหม่วันที่ ' + fmtDate(90) + ' นะครับ', 'Glad to hear it. See you again on ' + fmtDate(90) + '.')));
+  $('rLater').addEventListener('click', () => answer(T('ขอเลื่อน 2 สัปดาห์', 'Ask me in 2 weeks'),
+    T('ได้ครับ จะถามใหม่วันที่ ' + fmtDate(14) + ' ระหว่างนี้ไม่มีอะไรถูกส่งออกไปครับ', "Sure. I'll ask again on " + fmtDate(14) + '. Nothing gets sent in the meantime.')));
+
+  /* ---------- letter timing ---------- */
+  const opts = document.querySelectorAll('.when-opts button');
+  opts.forEach((b) => b.addEventListener('click', () => opts.forEach((x) => x.setAttribute('aria-pressed', String(x === b)))));
+
+  /* ---------- receipt ---------- */
+  const items = [
+    { id: 'netflix', th: 'Netflix', en: 'Netflix', price: 419, on: true, st: ['ยกเลิกแล้ว', 'Cancelled'] },
+    { id: 'youtube', th: 'YouTube Premium', en: 'YouTube Premium', price: 179, on: true, st: ['ยกเลิกแล้ว', 'Cancelled'] },
+    { id: 'spotify', th: 'Spotify', en: 'Spotify', price: 139, on: false, st: ['ยกเลิกแล้ว', 'Cancelled'] },
+    { id: 'icloud', th: 'iCloud+', en: 'iCloud+', price: 99, on: true, st: ['ส่งรูปให้ทายาทแล้ว ปิดบัญชี', 'Photos sent to heir, closed'] },
+    { id: 'ai', th: 'แอป AI แบบเสียเงิน', en: 'Paid AI app', price: 690, on: false, st: ['ยกเลิกแล้ว', 'Cancelled'] },
+    { id: 'gym', th: 'ฟิตเนส', en: 'Gym membership', price: 1590, on: true, st: ['ส่งหนังสือยกเลิกสัญญา', 'Termination letter sent'] },
+    { id: 'phone', th: 'ค่าโทรศัพท์รายเดือน', en: 'Mobile plan', price: 599, on: true, st: ['ยกเลิกเบอร์ เก็บไว้ 30 วัน', 'Number kept 30 days, then closed'] },
+    { id: 'fb', th: 'Facebook · Instagram', en: 'Facebook · Instagram', price: 0, on: true, st: ['เปลี่ยนเป็นบัญชีระลึกถึง', 'Memorialised'] },
+  ];
+  const fmt = (n) => '฿' + n.toLocaleString('en-US');
+  const picks = $('picks');
+  items.forEach((it) => {
+    const l = document.createElement('label');
+    l.innerHTML = '<input type="checkbox" id="p-' + it.id + '"' + (it.on ? ' checked' : '') + '>' +
+      '<span><span class="th">' + it.th + '</span><span class="en">' + it.en + '</span></span>' +
+      '<span class="pr">' + (it.price ? fmt(it.price) : '–') + '</span>';
+    picks.appendChild(l);
+  });
+  function bill() {
+    let m = 0; const box = $('lines'); box.innerHTML = '';
+    items.forEach((it) => {
+      if (!$('p-' + it.id).checked) return;
+      m += it.price;
+      const r = document.createElement('div'); r.className = 'r';
+      const name = document.createElement('span'); name.textContent = T(it.th, it.en);
+      const st = document.createElement('span'); st.className = 'st'; st.textContent = T(it.st[0], it.st[1]);
+      name.appendChild(st);
+      const pr = document.createElement('span'); pr.textContent = it.price ? fmt(it.price) : '';
+      r.append(name, pr); box.appendChild(r);
+    });
+    if (!box.children.length) box.innerHTML = '<div class="empty">' + T('ยังไม่ได้เลือกอะไร', 'Nothing ticked yet') + '</div>';
+    $('perMonth').textContent = fmt(m);
+    $('perYear').textContent = fmt(m * 12);
+  }
+  picks.addEventListener('change', bill);
+
+  /* ---------- signup ---------- */
+  $('signup').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const v = $('email').value.trim(), msg = $('msg');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) {
+      msg.className = 'msg err';
+      msg.textContent = T('อีเมลยังไม่ครบ ลองพิมพ์แบบ name@example.com', 'That email looks incomplete. Try name@example.com');
+      return;
+    }
+    msg.className = 'msg ok'; msg.textContent = T('จดไว้แล้ว ', 'Noted: ') + v; $('email').value = '';
+  });
+
+  /* ---------- start ---------- */
+  let initial = 'th';
+  try { initial = localStorage.getItem('lastly-lang') || initial; } catch (e) {}
+  if (location.hash === '#en') initial = 'en';
+  if (location.hash === '#th') initial = 'th';
+  setLang(initial === 'en' ? 'en' : 'th');
+})();
+</script>
+</body>
+</html>
